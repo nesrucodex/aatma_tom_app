@@ -8,7 +8,7 @@ import { ClassValue } from 'clsx';
 // Variants
 
 const buttonVariants = cva(
-  'flex-row items-center justify-center rounded-full',
+  'flex-row items-center justify-center rounded-xl',
   {
     variants: {
       variant: {

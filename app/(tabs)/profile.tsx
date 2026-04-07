@@ -29,13 +29,16 @@ export default function ProfileScreen() {
         {/* Balance section */}
         <View className="items-center gap-2 py-4">
           <Text className="text-sm text-zinc-400">Account balance</Text>
-          <View className="flex-row items-center gap-3">
+          <View className=" relative">
             <Text className="text-4xl font-black text-white tracking-tight">
               {balanceVisible ? '2,580.30 ETB' : '••••••  ETB'}
             </Text>
             <TouchableOpacity
               onPress={() => setBalanceVisible((v) => !v)}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              className='absolute -right-6 translate-x-1/2 top-1/2 -translate-y-1/2'
+            >
+
               <Ionicons
                 name={balanceVisible ? 'eye-off-outline' : 'eye-outline'}
                 size={20}
@@ -44,7 +47,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </View>
           <View className="flex-row items-center gap-1.5">
-            <Text className="text-sm text-zinc-500">Next Billing Date:</Text>
+            <Text className="text-sm text-zinc-500">Next Billing:</Text>
             <Text className="text-sm font-semibold text-zinc-300">2024/05/12</Text>
           </View>
         </View>
