@@ -1,20 +1,44 @@
 import '../global.css';
+
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { Slot, useRouter, useSegments } from 'expo-router';
+import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { Stack } from 'expo-router';
+import { Toaster } from '../components';
+import { queryClient } from '../lib/query-client';
+import { useAuthStore } from '../store/auth.store';
 
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
+function AuthGate() {
+  const { isAuthenticated, isLoading, loadToken } = useAuthStore();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => { loadToken(); }, []);
+
+  useEffect(() => {
+    if (isLoading) return;
+    const inAuth = segments[0] === '(auth)';
+    if (!isAuthenticated && !inAuth) router.replace('/(auth)/sign-in');
+    else if (isAuthenticated && inAuth) router.replace('/(tabs)');
+  }, [isAuthenticated, isLoading, segments]);
+
+  return <Slot />;
+}
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <SafeAreaProvider>
+          <BottomSheetModalProvider>
+            <AuthGate />
+            <Toaster />
+          </BottomSheetModalProvider>
+        </SafeAreaProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
