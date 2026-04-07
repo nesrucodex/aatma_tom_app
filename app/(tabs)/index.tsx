@@ -10,6 +10,7 @@ import { StatCards } from '../../components/features/home/StatCard';
 import { useAssociationAnalytics, useTerminalOperations } from '../../hooks/useHomeData';
 import { cn } from '../../lib/utils';
 import { useAuthStore } from '../../store/auth.store';
+import type { TerminalOperation } from '../../types/terminal-operation.types';
 import ScreeenHeader from '@/components/shared/ScreeenHeader';
 
 const LANGUAGES: SelectOption[] = [
@@ -57,7 +58,7 @@ export default function HomeScreen() {
   const { data: operationsData, isLoading: operationsLoading } = useTerminalOperations(terminalId);
 
   const analytics = analyticsData?.data.analytics;
-  const operations = operationsData?.data.operations ?? [];
+  const operations: TerminalOperation[] = operationsData?.data.operations ?? [];
 
   const filtered = filter === 'all'
     ? operations
@@ -73,8 +74,6 @@ export default function HomeScreen() {
       { icon: 'arrow-forward-outline' as const, iconColor: '#a78bfa', value: String(analytics.operationsByType.checkOut), label: 'Checked Out' },
     ]
     : [];
-
-  console.log({ filtered: filtered.map(f => f.checkInTerminalOperator) })
 
   return (
     <>

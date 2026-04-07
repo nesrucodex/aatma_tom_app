@@ -31,8 +31,8 @@ const terminalSchema = z.object({
 export const vehicleOperationSchema = z.object({
   id: z.string(),
   type: z.enum(['CHECK_IN', 'CHECK_OUT']),
-  checkInAt: z.string(),
-  checkOutAt: z.string().nullable(),
+  checkInAt: z.coerce.string(),
+  checkOutAt: z.coerce.string().nullable(),
   waitingTimeMinutes: z.number().nullable(),
   terminalId: z.string().optional(),
   terminal: terminalSchema,

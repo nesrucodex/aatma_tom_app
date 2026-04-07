@@ -70,21 +70,48 @@ export function OperatorDetail({
         </View>
       )}
 
-      {/* Emergency requests — collapsible list */}
-      {emergencyRequestCount > 0 && (
+      {/* Emergency requests — collapsible list with real data */}
+      {detail?.terminalOperator.emergencyRequests && detail.terminalOperator.emergencyRequests.length > 0 && (
         <Collapsible
           icon="warning-outline"
           title="Emergency Requests"
-          badge={emergencyRequestCount}
+          badge={detail.terminalOperator.emergencyRequests.length}
           titleClassName="text-warning-700">
-          {Array.from({ length: emergencyRequestCount }).map((_, i) => (
-            <View key={i} className="flex-row items-start gap-3 py-3 border-b border-neutral-100">
-              <View className="mt-1.5 h-2 w-2 rounded-full bg-warning-400" />
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-neutral-900">
-                  Emergency Request #{i + 1}
+          {detail.terminalOperator.emergencyRequests.map((req) => (
+            <View key={req.id} className="flex-row items-start gap-3 py-3 border-b border-neutral-100">
+              <View className={`mt-1.5 h-2 w-2 rounded-full ${
+                req.status === 'RESOLVED' ? 'bg-success' :
+                req.status === 'REJECTED' ? 'bg-destructive' : 'bg-warning-400'
+              }`} />
+              <View className="flex-1 gap-0.5">
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-sm font-semibold text-neutral-900">
+                    {req.vehicle?.licensePlate ?? 'Unknown vehicle'}
+                  </Text>
+                  <Text className={`text-xs font-semibold ${
+                    req.status === 'RESOLVED' ? 'text-success-600' :
+                    req.status === 'REJECTED' ? 'text-destructive' : 'text-warning-600'
+                  }`}>
+                    {req.status}
+                  </Text>
+                </View>
+                {req.vehicle?.type && (
+                  <Text className="text-xs text-neutral-400">{req.vehicle.type}</Text>
+                )}
+                {req.reason && (
+                  <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={2}>
+                    {req.reason}
+                  </Text>
+                )}
+                {req.destination && (
+                  <View className="flex-row items-center gap-1 mt-0.5">
+                    <Ionicons name="location-outline" size={11} color="#9ca3af" />
+                    <Text className="text-xs text-neutral-400">{req.destination.name}</Text>
+                  </View>
+                )}
+                <Text className="text-xs text-neutral-300 mt-0.5">
+                  {new Date(req.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
                 </Text>
-                <Text className="text-xs text-neutral-400">Submitted by this operator</Text>
               </View>
             </View>
           ))}

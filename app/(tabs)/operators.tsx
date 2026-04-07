@@ -5,11 +5,12 @@ import { useState } from 'react';
 
 import { Avatar, EmptyState } from '../../components';
 import ScreeenHeader from '../../components/shared/ScreeenHeader';
-import { OperatorDetail } from '../../components/features/operators/OperatorDetail';
+// import { OperatorDetail } from '../../components/features/operators/OperatorDetail';
 import { OperatorRow } from '../../components/features/operators/OperatorRow';
 import { useAssociationAnalytics } from '../../hooks/useHomeData';
 import { useOperatorDetail } from '../../hooks/useOperatorDetail';
 import type { AssociationAnalytics } from '../../types/association.types';
+import { OperatorDetail } from '@/components/features/operators/OperatorDetail';
 
 type OperatorPerf = AssociationAnalytics['operatorsPerformance'][number];
 

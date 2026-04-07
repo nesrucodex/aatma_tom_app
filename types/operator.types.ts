@@ -12,6 +12,25 @@ const operationItemSchema = z.object({
   updatedAt: z.string(),
 }).passthrough();
 
+const emergencyRequestSchema = z.object({
+  id: z.string(),
+  reason: z.string().nullable(),
+  status: z.string(),
+  resolvedAt: z.string().nullable(),
+  resolutionNotes: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  vehicle: z.object({
+    id: z.string(),
+    licensePlate: z.string(),
+    type: z.string(),
+  }).nullable(),
+  destination: z.object({
+    id: z.string(),
+    name: z.string(),
+  }).nullable(),
+}).passthrough();
+
 const salaryPaymentSchema = z.object({
   id: z.string(),
   amount: z.number(),
@@ -45,6 +64,7 @@ export const operatorMemberDetailSchema = z.object({
       }).passthrough(),
       checkInTerminalOperations: z.array(operationItemSchema),
       checkOutTerminalOperations: z.array(operationItemSchema),
+      emergencyRequests: z.array(emergencyRequestSchema).optional(),
     }).passthrough(),
     receivedSalary: z.number(),
     pendingPayment: z.number(),

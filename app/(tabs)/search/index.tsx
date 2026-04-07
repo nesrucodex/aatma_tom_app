@@ -8,6 +8,7 @@ import { VehicleCard } from '../../../components/features/search/VehicleCard';
 import ScreeenHeader from '../../../components/shared/ScreeenHeader';
 import { useVehicleSearch } from '../../../hooks/useVehicleSearch';
 import type { Vehicle } from '../../../types/vehicle.types';
+import { debug } from '@/lib/debug';
 
 function ResultRow({ vehicle, onPress }: { vehicle: Vehicle; onPress: () => void }) {
   const latestOp = vehicle.terminalOperations?.[0];
@@ -43,7 +44,10 @@ export default function SearchScreen() {
   } = useVehicleSearch();
 
   const latestOp = operations[0];
-  const isCheckedOut = vehicle?.status === 'AVAILABLE' || latestOp?.type === 'CHECK_OUT';
+  debug.log("SearchScreen", {
+    latestOp
+  })
+  const isCheckedOut = latestOp?.type === "CHECK_OUT";
   const status = isCheckedOut ? 'checked-out' : 'checked-in';
 
   const timeline = operations.slice(0, 5).map((op) => ({
@@ -120,8 +124,13 @@ export default function SearchScreen() {
         {isLoadingDetail && (
           <VehicleCard
             loading
-            plate="" status="checked-out" station="" operator="" duration="" timeline={[]}
-            onAction={() => {}} onViewDetail={() => {}}
+            plate=""
+            status="checked-out"
+            station=""
+            operator=""
+            duration=""
+            timeline={[]}
+            onAction={() => { }} onViewDetail={() => { }}
           />
         )}
 
@@ -139,7 +148,18 @@ export default function SearchScreen() {
             }
             route={vehicle.route?.name ?? null}
             timeline={timeline}
-            onAction={() => router.push('/(tabs)/search/resolve')}
+            onAction={() => router.push({
+              pathname: '/(tabs)/search/resolve',
+              params: {
+                vehicleId: vehicle.id,
+                plate: vehicle.licensePlate,
+                operator: latestOp?.checkInTerminalOperator?.user?.name ?? '—',
+                station: latestOp?.terminal?.name ?? '—',
+                duration: latestOp
+                  ? new Date(latestOp.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  : '—',
+              },
+            })}
             onViewDetail={() => router.push({
               pathname: '/(tabs)/search/vehicle',
               params: {

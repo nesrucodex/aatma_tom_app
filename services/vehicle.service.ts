@@ -22,6 +22,12 @@ export const vehicleService = {
     const res = await apiClient.get(`/vehicles/${vehicleId}/terminal-operations`, {
       params: { page: 1, limit: 20 },
     });
-    return vehicleOperationsResponseSchema.parse(res.data).data.terminalOperations;
+    const parsed = vehicleOperationsResponseSchema.safeParse(res.data);
+    if (!parsed.success) {
+      console.warn('[vehicleService.getOperations] parse error:', JSON.stringify(parsed.error.issues.slice(0, 3), null, 2));
+      // Return raw data as fallback so the UI still works
+      return res.data?.data?.terminalOperations ?? [];
+    }
+    return parsed.data.data.terminalOperations;
   },
 };

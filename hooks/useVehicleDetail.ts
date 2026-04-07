@@ -4,7 +4,7 @@ import { vehicleService } from '../services/vehicle.service';
 
 export function useVehicleDetail(vehicleId: string | undefined) {
   const operationsQuery = useQuery({
-    queryKey: ['vehicle-operations', vehicleId],
+    queryKey: ['vehicle-detail-operations', vehicleId],
     queryFn: () => vehicleService.getOperations(vehicleId!),
     enabled: !!vehicleId,
     staleTime: 1000 * 60,

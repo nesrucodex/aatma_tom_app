@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Alert, Badge, Button } from '../../../components';
 import ScreeenHeader from '../../../components/shared/ScreeenHeader';
 import { useVehicleDetail } from '../../../hooks/useVehicleDetail';
+import { debug } from '@/lib/debug';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental?.(true);
@@ -65,6 +66,11 @@ export default function VehicleScreen() {
   const statusLabel = isCheckedIn ? 'Checked In' : 'Checked Out';
   const statusVariant: 'default' | 'success' = isCheckedIn ? 'default' : 'success';
 
+  debug.log("VehicleScreen", {
+    latestOp,
+    operations
+  })
+
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       <ScreeenHeader onBack={() => router.back()} backLabel="Search">
@@ -82,23 +88,23 @@ export default function VehicleScreen() {
 
         {/* Current status card — only when checked in */}
         {isCheckedIn && !isLoading && (
-          <View className="rounded-2xl bg-primary-50 border border-primary-200 p-4 mb-4 gap-3">
+          <View className="rounded-2xl bg-neutral-50 border border-neutral-100 p-4 mb-4 gap-3">
             <View className="flex-row items-center gap-2">
-              <View className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <Text className="text-sm font-bold text-primary-700">Currently Checked In</Text>
+              <View className="h-2 w-2 rounded-full bg-success-500" />
+              <Text className="text-sm font-bold text-neutral-800">Currently Checked In</Text>
             </View>
             <View className="flex-row gap-6">
               <View>
-                <Text className="text-xs text-primary-400">Terminal</Text>
-                <Text className="text-sm font-bold text-primary-900">{currentStation}</Text>
+                <Text className="text-xs text-neutral-400">Terminal</Text>
+                <Text className="text-sm font-bold text-neutral-900">{currentStation}</Text>
               </View>
               <View>
-                <Text className="text-xs text-primary-400">Operator</Text>
-                <Text className="text-sm font-bold text-primary-900">{currentOperator}</Text>
+                <Text className="text-xs text-neutral-400">Operator</Text>
+                <Text className="text-sm font-bold text-neutral-900">{currentOperator}</Text>
               </View>
               <View>
-                <Text className="text-xs text-primary-400">Since</Text>
-                <Text className="text-sm font-bold text-primary-900">{checkedInAt}</Text>
+                <Text className="text-xs text-neutral-400">Since</Text>
+                <Text className="text-sm font-bold text-neutral-900">{checkedInAt}</Text>
               </View>
             </View>
           </View>
