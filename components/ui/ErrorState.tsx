@@ -20,7 +20,10 @@ export function ErrorState({
       <Text className="text-center text-base font-semibold text-gray-900">Oops!</Text>
       <Text className="text-center text-sm text-gray-500">{message}</Text>
       {onRetry && (
-        <Button label="Try Again" variant="outline" size="md" onPress={onRetry} />
+        <Button label="Try Again" variant="secondary" size="sm" classNames={{
+          root: "text-[4rem]",
+          text: ""
+        }} onPress={onRetry} />
       )}
     </View>
   );

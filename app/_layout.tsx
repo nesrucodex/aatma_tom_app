@@ -28,13 +28,15 @@ function AuthGate() {
     else if (isAuthenticated && inAuth) router.replace('/(tabs)');
   }, [isAuthenticated, isLoading, segments]);
 
+  if(isLoading) return null
+
   return <Slot />;
 }
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}> 
         <SafeAreaProvider>
           <BottomSheetModalProvider>
             <AuthGate />

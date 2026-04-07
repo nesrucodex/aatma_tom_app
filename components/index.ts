@@ -4,6 +4,7 @@ export { Badge } from './ui/Badge';
 export { BottomDrawer, type DrawerOption } from './ui/BottomDrawer';
 export { Button } from './ui/Button';
 export { Card } from './ui/Card';
+export { Collapsible } from './ui/Collapsible';
 export { EmptyState, type EmptyStateProps, type EmptyStateAction } from './ui/EmptyState';
 export { ErrorState } from './ui/ErrorState';
 export { Input } from './ui/Input';

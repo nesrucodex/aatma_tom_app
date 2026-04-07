@@ -1,68 +1,139 @@
-import { ScrollView, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 
+import { Avatar, EmptyState } from '../../components';
 import ScreeenHeader from '../../components/shared/ScreeenHeader';
 import { OperatorDetail } from '../../components/features/operators/OperatorDetail';
 import { OperatorRow } from '../../components/features/operators/OperatorRow';
+import { useAssociationAnalytics } from '../../hooks/useHomeData';
+import { useOperatorDetail } from '../../hooks/useOperatorDetail';
+import type { AssociationAnalytics } from '../../types/association.types';
 
-const OPERATORS = [
-  { id: '1', initials: 'AK', name: 'Abebe K.',   station: 'Bole',      revenue: '3,200 ETB', checkedIn: 'AA-1234', time: '10:30 AM', avatarColor: 'blue'   as const },
-  { id: '2', initials: 'SM', name: 'Sara M.',     station: 'Mexico',    revenue: '2,800 ETB', checkedIn: 'AA-1234', time: '10:30 AM', avatarColor: 'purple' as const },
-  { id: '3', initials: 'DT', name: 'Daniel T.',   station: 'Kazanchis', revenue: '2,700 ETB', checkedIn: 'AA-1234', time: '10:30 AM', issueCount: 1, avatarColor: 'green'  as const },
-  { id: '4', initials: 'FA', name: 'Fatima A.',   station: 'Mexico',    revenue: '4,100 ETB', checkedIn: 'AA-1234', time: '10:30 AM', avatarColor: 'orange' as const },
-  { id: '5', initials: 'YB', name: 'Yonas B.',    station: 'Megenagna', revenue: '1,500 ETB', checkedIn: 'AA-1234', time: '10:30 AM', avatarColor: 'yellow' as const },
-];
+type OperatorPerf = AssociationAnalytics['operatorsPerformance'][number];
+
+function OperatorDetailScreen({
+  op,
+  onBack,
+}: {
+  op: OperatorPerf;
+  onBack: () => void;
+}) {
+  const { data: detail, isLoading } = useOperatorDetail(op.terminalOperator.id);
+  const phone = detail?.terminalOperator.user.phone;
+  const status = detail?.terminalOperator.status ?? 'ACTIVE';
+  const isActive = status === 'ACTIVE';
+
+  return (
+    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+      <ScreeenHeader onBack={onBack} backLabel="Operators">
+        <View className="flex-row items-center gap-3">
+          <Avatar initials={(op.terminalOperator.name ?? '?').slice(0, 2).toUpperCase()} size="md" />
+          <View className="flex-1">
+            <Text className="text-lg font-bold text-white">{op.terminalOperator.name ?? '—'}</Text>
+            <Text className="text-xs text-zinc-400">{op.terminalOperator.role?.replace(/_/g, ' ')}</Text>
+            {phone && (
+              <View className="flex-row items-center gap-1 mt-0.5">
+                <Ionicons name="call-outline" size={11} color="#71717a" />
+                <Text className="text-xs text-zinc-500">{phone}</Text>
+              </View>
+            )}
+          </View>
+          <View className={`rounded-full px-2.5 py-1 ${isActive ? 'bg-success-900/40' : 'bg-zinc-800'}`}>
+            <Text className={`text-xs font-semibold ${isActive ? 'text-success-400' : 'text-zinc-400'}`}>
+              {status}
+            </Text>
+          </View>
+        </View>
+      </ScreeenHeader>
+
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20 }}>
+        <OperatorDetail
+          operationsHandled={op.operationsHandled}
+          revenueGenerated={op.revenueGenerated}
+          emergencyRequestCount={op.emergencyRequestCount}
+          detail={detail}
+          isLoadingDetail={isLoading}
+        />
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
 
 export default function OperatorsScreen() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const selected = OPERATORS.find((o) => o.id === selectedId);
+  const [selectedOp, setSelectedOp] = useState<OperatorPerf | null>(null);
+  const { data, isLoading, isError, refetch } = useAssociationAnalytics();
 
-  if (selected) {
-    return (
-      <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-        <ScreeenHeader
-          onBack={() => setSelectedId(null)}
-          backLabel="Operators">
-          <Text className="text-2xl font-bold text-white">{selected.name}</Text>
-          <Text className="mt-1 text-sm text-zinc-400">{selected.station}</Text>
-        </ScreeenHeader>
+  const operators = data?.data.analytics.operatorsPerformance ?? [];
 
-        <ScrollView
-          className="flex-1"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20 }}>
-          <OperatorDetail
-            initials={selected.initials}
-            name={selected.name}
-            station={selected.station}
-            carsHandled={42}
-            revenue="3,200 ETB"
-            issues={selected.issueCount ?? 0}
-            log={[
-              { label: 'Checked in ABC-1234 at 10:30 AM' },
-              { label: 'Checked out XYZ-8890 at 9:15 AM' },
-              { label: 'Override on DEF-5678 at 8:00 AM' },
-            ]}
-          />
-        </ScrollView>
-      </SafeAreaView>
-    );
+  if (selectedOp) {
+    return <OperatorDetailScreen op={selectedOp} onBack={() => setSelectedOp(null)} />;
   }
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       <ScreeenHeader>
-        <Text className="text-2xl font-bold text-white">Operators</Text>
-        <Text className="mt-1 text-sm text-zinc-400">{OPERATORS.length} operators</Text>
+        <View className="flex-row items-center justify-between">
+          <Text className="text-2xl font-bold text-white">Operators</Text>
+          {isLoading && <ActivityIndicator size="small" color="#9ca3af" />}
+        </View>
+        {!isLoading && (
+          <Text className="mt-1 text-sm text-zinc-400">{operators.length} operators</Text>
+        )}
       </ScreeenHeader>
 
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 }}>
-        {OPERATORS.map((op) => (
-          <OperatorRow key={op.id} {...op} onPress={() => setSelectedId(op.id)} />
+
+        {isError && (
+          <EmptyState
+            icon="alert-circle-outline"
+            title="Failed to load operators"
+            description="Could not fetch operator data."
+            actions={[{ label: 'Retry', onPress: refetch }]}
+            classNames={{ root: 'py-16' }}
+          />
+        )}
+
+        {!isLoading && !isError && operators.length === 0 && (
+          <EmptyState
+            icon="people-outline"
+            title="No operators yet"
+            description="No active operators found for this association."
+            classNames={{ root: 'py-16' }}
+          />
+        )}
+
+        {isLoading && (
+          <View className="gap-0">
+            {[1, 2, 3, 4].map((i) => (
+              <View key={i} className="flex-row items-center gap-4 py-4 border-b border-neutral-100">
+                <View className="h-10 w-10 rounded-full bg-neutral-100" />
+                <View className="flex-1 gap-2">
+                  <View className="h-4 w-32 rounded bg-neutral-100" />
+                  <View className="h-3 w-48 rounded bg-neutral-100" />
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {!isLoading && operators.map((op) => (
+          <OperatorRow
+            key={op.terminalOperator.id}
+            name={op.terminalOperator.name ?? '—'}
+            role={op.terminalOperator.role ?? ''}
+            revenue={`${op.revenueGenerated.toLocaleString()} ETB`}
+            operationsHandled={op.operationsHandled}
+            emergencyRequestCount={op.emergencyRequestCount}
+            onPress={() => setSelectedOp(op)}
+          />
         ))}
       </ScrollView>
     </SafeAreaView>

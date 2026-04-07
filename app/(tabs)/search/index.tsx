@@ -98,7 +98,7 @@ export default function SearchScreen() {
 
         {/* Results list — shown while typing, before selecting */}
         {!vehicle && results.length > 0 && (
-          <View className="rounded-2xl bg-white border border-neutral-100 px-4 overflow-hidden"
+          <View className="rounded-b-xl bg-white border border-neutral-100 px-4 overflow-hidden"
             style={{ shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 }}>
             {results.map((v) => (
               <ResultRow key={v.id} vehicle={v} onPress={() => selectVehicle(v)} />
@@ -137,9 +137,19 @@ export default function SearchScreen() {
                 ? new Date(latestOp.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 : '—'
             }
+            route={vehicle.route?.name ?? null}
             timeline={timeline}
             onAction={() => router.push('/(tabs)/search/resolve')}
-            onViewDetail={() => router.push('/(tabs)/search/vehicle')}
+            onViewDetail={() => router.push({
+              pathname: '/(tabs)/search/vehicle',
+              params: {
+                id: vehicle.id,
+                plate: vehicle.licensePlate,
+                type: vehicle.type,
+                routeName: vehicle.route?.name ?? '',
+                status: vehicle.status,
+              },
+            })}
           />
         )}
       </ScrollView>

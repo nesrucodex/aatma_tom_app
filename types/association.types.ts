@@ -9,6 +9,7 @@ const operatorPerformanceSchema = z.object({
   }).passthrough(),
   operationsHandled: z.number(),
   revenueGenerated: z.number(),
+  emergencyRequestCount: z.number().default(0),
 });
 
 export const associationAnalyticsSchema = z.object({
