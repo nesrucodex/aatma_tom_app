@@ -32,7 +32,7 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                 borderTopRightRadius: 24,
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: -4 },
-                shadowOpacity: 0.07,
+                shadowOpacity: 0.08,
                 shadowRadius: 16,
                 elevation: 16,
             }}>

@@ -10,13 +10,16 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Toaster } from '../components';
 import { queryClient } from '../lib/query-client';
 import { useAuthStore } from '../store/auth.store';
+import { debug } from '@/lib/debug';
 
 function AuthGate() {
-  const { isAuthenticated, isLoading, loadToken } = useAuthStore();
+  const { isAuthenticated, isLoading, loadAuth, user } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
 
-  useEffect(() => { loadToken(); }, []);
+  debug.log("AuthGate", {isAuthenticated, user})
+
+  useEffect(() => { loadAuth(); }, []);
 
   useEffect(() => {
     if (isLoading) return;

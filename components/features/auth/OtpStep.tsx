@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { Button } from '../../../components/ui/Button';
+import { StatusBar } from 'expo-status-bar';
 
 const OTP_LENGTH = 6;
 
@@ -58,6 +59,7 @@ export function OtpStep({ countdown, onComplete, onResend, loading }: Props) {
 
   return (
     <View className="gap-4">
+      <StatusBar hidden />
       <View>
         <Text className="mb-3 text-sm font-medium text-gray-700">OTP</Text>
         <View className="flex-row justify-between gap-2">

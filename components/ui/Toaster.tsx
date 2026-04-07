@@ -12,9 +12,9 @@ const VARIANT_CONFIG: Record<
   { icon: React.ComponentProps<typeof Ionicons>['name']; iconColor: string; barColor: string; title: string }
 > = {
   success: { icon: 'checkmark-circle-outline', iconColor: colors.success.DEFAULT, barColor: colors.success.DEFAULT, title: 'Success' },
-  error:   { icon: 'close-circle-outline',     iconColor: colors.destructive.DEFAULT, barColor: colors.destructive.DEFAULT, title: 'Error'   },
-  warning: { icon: 'alert-circle-outline',     iconColor: colors.warning.DEFAULT, barColor: colors.warning.DEFAULT, title: 'Warning' },
-  info:    { icon: 'information-circle-outline',iconColor: colors.info.DEFAULT, barColor: colors.info.DEFAULT, title: 'Info'   },
+  error: { icon: 'close-circle-outline', iconColor: colors.destructive.DEFAULT, barColor: colors.destructive.DEFAULT, title: 'Error' },
+  warning: { icon: 'alert-circle-outline', iconColor: colors.warning.DEFAULT, barColor: colors.warning.DEFAULT, title: 'Warning' },
+  info: { icon: 'information-circle-outline', iconColor: colors.info.DEFAULT, barColor: colors.info.DEFAULT, title: 'Info' },
 };
 
 function ToastCard({ item, index }: { item: ToastItem; index: number }) {
@@ -28,8 +28,8 @@ function ToastCard({ item, index }: { item: ToastItem; index: number }) {
 
   const dismiss = () => {
     Animated.parallel([
-      Animated.timing(opacity, { toValue: 0, duration: TOASTER_CONFIG.animation.outDuration, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: -16, duration: TOASTER_CONFIG.animation.outDuration, useNativeDriver: true }),
+      Animated.timing(opacity, { toValue: 0.5, duration: TOASTER_CONFIG.animation.outDuration, useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: -30, duration: TOASTER_CONFIG.animation.outDuration, useNativeDriver: true }),
     ]).start(() => remove(item.id));
   };
 
@@ -66,7 +66,7 @@ function ToastCard({ item, index }: { item: ToastItem; index: number }) {
         zIndex: 999 + index,
       }}>
       <View
-        className="flex-row overflow-hidden rounded-xl bg-white"
+        className="flex-row overflow-hidden rounded-none bg-white"
         style={{
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 4 },

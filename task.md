@@ -1,0 +1,1 @@
+live activity should show todays or 24 hr work not entire operation 

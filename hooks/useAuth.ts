@@ -18,7 +18,7 @@ export function useVerifyOtp() {
     mutationFn: ({ phoneNumber, otp }: { phoneNumber: string; otp: string }) =>
       authService.verifyOtp(phoneNumber, otp),
     onSuccess: async (res) => {
-      await setAuth(res.data.tokens.accessToken, res.data.user);
+      await setAuth(res.data.tokens, res.data.user);
       router.replace('/(tabs)');
     },
   });

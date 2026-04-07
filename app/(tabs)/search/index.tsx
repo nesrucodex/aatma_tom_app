@@ -1,43 +1,56 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ScreeenHeader from '../../../components/shared/ScreeenHeader';
+import { EmptyState } from '../../../components';
 import { VehicleCard } from '../../../components/features/search/VehicleCard';
+import ScreeenHeader from '../../../components/shared/ScreeenHeader';
+import { useVehicleSearch } from '../../../hooks/useVehicleSearch';
+import type { Vehicle } from '../../../types/vehicle.types';
 
-const RESULTS = [
-  {
-    id: '1',
-    plate: '3AA-05678',
-    status: 'checked-out' as const,
-    station: 'Kazanchis',
-    operator: 'Daniel T.',
-    duration: '45m ago',
-    timeline: [
-      { label: 'Checked out', time: '9:30 AM', station: 'Kazanchis' },
-      { label: 'Checked in',  time: '8:45 AM', station: 'Kazanchis' },
-    ],
-  },
-  {
-    id: '2',
-    plate: 'AA-51678',
-    status: 'conflict' as const,
-    station: 'Mexico',
-    operator: 'Sara M.',
-    duration: '1h 15m',
-    conflictStation: 'Kazanchis Station',
-    timeline: [
-      { label: 'Checked in', time: '11:00 AM', station: 'Kazanchis' },
-      { label: 'Checked in', time: '10:45 AM', station: 'Mexico'    },
-    ],
-  },
-];
+function ResultRow({ vehicle, onPress }: { vehicle: Vehicle; onPress: () => void }) {
+  const latestOp = vehicle.terminalOperations?.[0];
+  const station = latestOp?.terminal?.name
+    ?? latestOp?.checkInTerminalOperator?.association?.terminal?.name
+    ?? '—';
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.7}
+      className="flex-row items-center justify-between py-3.5 border-b border-neutral-100">
+      <View>
+        <Text className="text-sm font-bold text-neutral-900">{vehicle.licensePlate}</Text>
+        <Text className="text-xs text-neutral-400 mt-0.5">{vehicle.type} · {station}</Text>
+      </View>
+      <View className="flex-row items-center gap-2">
+        <View className={`h-2 w-2 rounded-full ${vehicle.status === 'AVAILABLE' ? 'bg-success' : 'bg-primary'}`} />
+        <Text className="text-xs text-neutral-400">{vehicle.status.replace('_', ' ')}</Text>
+        <Ionicons name="chevron-forward" size={14} color="#d1d5db" />
+      </View>
+    </TouchableOpacity>
+  );
+}
 
 export default function SearchScreen() {
   const router = useRouter();
-  const [query, setQuery] = useState('');
+  const {
+    query, setQuery,
+    results, isSearching,
+    vehicle, operations, isLoadingDetail,
+    selectVehicle, clearSelection,
+  } = useVehicleSearch();
+
+  const latestOp = operations[0];
+  const isCheckedOut = vehicle?.status === 'AVAILABLE' || latestOp?.type === 'CHECK_OUT';
+  const status = isCheckedOut ? 'checked-out' : 'checked-in';
+
+  const timeline = operations.slice(0, 5).map((op) => ({
+    label: op.type === 'CHECK_IN' ? 'Checked in' : 'Checked out',
+    time: new Date(op.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    station: op.terminal?.name ?? op.checkInTerminalOperator?.association?.terminal?.name ?? '—',
+  }));
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
@@ -49,31 +62,86 @@ export default function SearchScreen() {
             className="flex-1 text-base text-white"
             value={query}
             onChangeText={setQuery}
+            returnKeyType="search"
             placeholderTextColor="#4b5563"
-            placeholder="Try: AA-12345, OR-88900, AA-56708"
+            placeholder="License plate, model…"
+            autoCapitalize="characters"
           />
+          {isSearching || isLoadingDetail ? (
+            <ActivityIndicator size="small" color="#6b7280" />
+          ) : query.length > 0 ? (
+            <TouchableOpacity onPress={clearSelection} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Ionicons name="close-circle" size={20} color="#6b7280" />
+            </TouchableOpacity>
+          ) : null}
         </View>
         <Text className="mt-2 text-xs text-zinc-500">
-          Try: AA-12345, OR-88900, AA-56708
+          Type to search by plate, model or manufacturer
         </Text>
       </ScreeenHeader>
 
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 }}>
-        {RESULTS.map((item) => (
+
+        {/* Empty prompt */}
+        {!query && !vehicle && (
+          <EmptyState
+            icon="search-outline"
+            title="Search for a vehicle"
+            description="Type a license plate, model or manufacturer."
+            classNames={{ root: 'py-16' }}
+          />
+        )}
+
+        {/* Results list — shown while typing, before selecting */}
+        {!vehicle && results.length > 0 && (
+          <View className="rounded-2xl bg-white border border-neutral-100 px-4 overflow-hidden"
+            style={{ shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 }}>
+            {results.map((v) => (
+              <ResultRow key={v.id} vehicle={v} onPress={() => selectVehicle(v)} />
+            ))}
+          </View>
+        )}
+
+        {/* No results */}
+        {!vehicle && query.length >= 2 && !isSearching && results.length === 0 && (
+          <EmptyState
+            icon="car-outline"
+            title="No vehicles found"
+            description={`No match for "${query}"`}
+            classNames={{ root: 'py-16' }}
+          />
+        )}
+
+        {/* Loading detail skeleton */}
+        {isLoadingDetail && (
           <VehicleCard
-            key={item.id}
-            {...item}
-            onAction={() =>
-              item.status === 'conflict'
-                ? router.push('/(tabs)/search/resolve')
-                : router.push('/(tabs)/search/vehicle')
+            loading
+            plate="" status="checked-out" station="" operator="" duration="" timeline={[]}
+            onAction={() => {}} onViewDetail={() => {}}
+          />
+        )}
+
+        {/* Selected vehicle card */}
+        {vehicle && !isLoadingDetail && (
+          <VehicleCard
+            plate={vehicle.licensePlate}
+            status={status}
+            station={latestOp?.terminal?.name ?? latestOp?.checkInTerminalOperator?.association?.terminal?.name ?? '—'}
+            operator={latestOp?.checkInTerminalOperator?.user?.name ?? '—'}
+            duration={
+              latestOp
+                ? new Date(latestOp.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                : '—'
             }
+            timeline={timeline}
+            onAction={() => router.push('/(tabs)/search/resolve')}
             onViewDetail={() => router.push('/(tabs)/search/vehicle')}
           />
-        ))}
+        )}
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,37 +1,67 @@
 import { create } from 'zustand';
 
 import { tokenStorage } from '../lib/token-storage';
-import { type User } from '../types/auth.types';
+import { type Tokens, type User } from '../types/auth.types';
 
 interface AuthState {
   user: User | null;
-  token: string | null;
+  tokens: Tokens | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 
-  setAuth: (token: string, user: User) => Promise<void>;
+  setAuth: (tokens: Tokens, user: User) => Promise<void>;
   clearAuth: () => Promise<void>;
-  loadToken: () => Promise<void>;
+  loadAuth: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  token: null,
+  tokens: null,
   isAuthenticated: false,
   isLoading: true,
 
-  setAuth: async (token, user) => {
-    await tokenStorage.set(token);
-    set({ token, user, isAuthenticated: true });
+  setAuth: async (tokens, user) => {
+    await Promise.all([
+      tokenStorage.set(tokens.accessToken),
+      tokenStorage.setRefresh(tokens.refreshToken),
+      tokenStorage.setUser(user),
+    ]);
+    set({ tokens, user, isAuthenticated: true });
   },
 
   clearAuth: async () => {
-    await tokenStorage.remove();
-    set({ token: null, user: null, isAuthenticated: false });
+    await tokenStorage.clearAll();
+    set({ tokens: null, user: null, isAuthenticated: false });
   },
 
-  loadToken: async () => {
-    const token = await tokenStorage.get();
-    set({ token, isAuthenticated: !!token, isLoading: false });
+  loadAuth: async () => {
+    const [accessToken, refreshToken, userJson] = await Promise.all([
+      tokenStorage.get(),
+      tokenStorage.getRefresh(),
+      tokenStorage.getUser(),
+    ]);
+
+    if (accessToken && userJson) {
+      try {
+        const user = JSON.parse(userJson) as User;
+        set({
+          tokens: {
+            accessToken,
+            refreshToken: refreshToken ?? '',
+            tokenType: 'Bearer',
+            accessTokenExpiresAt: '',
+            refreshTokenExpiresAt: '',
+          },
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+        return;
+      } catch {
+        await tokenStorage.clearAll();
+      }
+    }
+
+    set({ isAuthenticated: false, isLoading: false });
   },
 }));
