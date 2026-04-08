@@ -3,7 +3,7 @@
     "name": "tom_app",
     "slug": "tom_app",
     "version": "1.0.0",
-    "scheme": "tom_app",
+    "scheme": "tomapp",
     "platforms": [
       "ios",
       "android"
@@ -15,7 +15,8 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -39,7 +40,20 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.nesrucodex.tom"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "24c661bf-2a9d-4f7e-b472-70490ca930af"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/24c661bf-2a9d-4f7e-b472-70490ca930af"
     }
   }
 }

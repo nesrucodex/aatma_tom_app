@@ -11,6 +11,7 @@ import { useRequestOtp, useVerifyOtp } from '../../hooks/useAuth';
 import { parseApiError } from '../../lib/api-error';
 import { toast } from '../../lib/toast';
 import { Link } from 'expo-router';
+import { env } from '@/config/env.config';
 
 export default function SignInScreen() {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
@@ -93,8 +94,9 @@ export default function SignInScreen() {
             />
           )}
         </View>
-
-        <Link href={"/(tabs)"} className='text-white bg-primary w-20 text-center rounded-full py-2'>SKIP</Link>
+        <Text>EXPO_PUBLIC_API_URL: {env.EXPO_PUBLIC_API_URL}</Text>
+        <Text>EXPO_PUBLIC_APP_ENV: {env.EXPO_PUBLIC_APP_ENV}</Text>
+        {/* <Link href={"/(tabs)"} className='text-white bg-primary w-20 text-center rounded-full py-2'>SKIP</Link> */}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
