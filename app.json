@@ -22,6 +22,12 @@
       "typedRoutes": true,
       "tsconfigPaths": true
     },
+    "updates": {
+      "url": "https://u.expo.dev/24c661bf-2a9d-4f7e-b472-70490ca930af"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
