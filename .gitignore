@@ -27,6 +27,3 @@ android
 .env
 .env.local
 .env.*.local
-
-# EAS config — contains env vars and build secrets
-eas.json
