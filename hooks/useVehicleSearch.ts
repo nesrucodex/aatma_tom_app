@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
+import { QUERY_KEYS } from '../config/query-keys.config';
 import { vehicleService } from '../services/vehicle.service';
 import type { Vehicle } from '../types/vehicle.types';
 
@@ -28,16 +29,15 @@ export function useVehicleSearch() {
 
   // Partial search — fires while typing (debounced)
   const searchQuery = useQuery({
-    queryKey: ['vehicles-search', debouncedQuery],
+    queryKey: [QUERY_KEYS.VEHICLES_SEARCH, debouncedQuery],
     queryFn: () => vehicleService.search(debouncedQuery),
     enabled: debouncedQuery.length >= 2,
     retry: false,
     staleTime: 1000 * 30,
   });
 
-  // Full detail — fires when user selects a result
   const detailQuery = useQuery({
-    queryKey: ['vehicle-detail', selected?.licensePlate],
+    queryKey: [QUERY_KEYS.VEHICLE_DETAIL, selected?.licensePlate],
     queryFn: () => vehicleService.getByLicensePlate(selected!.licensePlate),
     enabled: !!selected,
     retry: false,

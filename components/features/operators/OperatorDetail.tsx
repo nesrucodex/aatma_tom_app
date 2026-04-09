@@ -76,7 +76,7 @@ export function OperatorDetail({
           icon="warning-outline"
           title="Emergency Requests"
           badge={detail.terminalOperator.emergencyRequests.length}
-          titleClassName="text-warning-700">
+          >
           {detail.terminalOperator.emergencyRequests.map((req) => (
             <View key={req.id} className="flex-row items-start gap-3 py-3 border-b border-neutral-100">
               <View className={`mt-1.5 h-2 w-2 rounded-full ${

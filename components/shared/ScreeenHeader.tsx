@@ -28,8 +28,8 @@ const ScreeenHeader = ({ children, className, classNames, onBack, backLabel = 'B
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -4 },
         shadowOpacity: 0.07,
-        shadowRadius: 16,
-        elevation: 16,
+        shadowRadius: 8,
+        elevation: 8,
       }}
     >
       <View className="absolute -top-10 inset-0 h-20 bg-zinc-950 -z-[99]" />

@@ -61,7 +61,7 @@ export default function SignInScreen() {
           {step === 'otp' && (
             <TouchableOpacity
               onPress={() => setStep('phone')}
-              className="absolute left-4 top-4 flex-row items-center gap-1 rounded-lg bg-black/40 px-3 py-2">
+              className="absolute left-4 top-4 flex-row items-center gap-1 rounded-full bg-black/40 px-3 py-2">
               <Ionicons name="chevron-back" size={16} color="white" />
               <Text className="text-sm font-medium text-white">Back</Text>
             </TouchableOpacity>

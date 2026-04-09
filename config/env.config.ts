@@ -1,9 +1,8 @@
 import { z } from 'zod';
 
 const envProcess = {
-  // EXPO_PUBLIC_API_URL: "https://aatmabackend.etpay.et/api/v1",
-  EXPO_PUBLIC_API_URL: "http://localhost:8080/api/v1",
-  // EXPO_PUBLIC_API_URL: "https://10.113.25.226:8080/api/v1",
+  EXPO_PUBLIC_API_URL: "https://aatmabackend.etpay.et/api/v1",
+  // EXPO_PUBLIC_API_URL: "http://localhost:8080/api/v1",
   EXPO_PUBLIC_APP_ENV: "production"
 }
 

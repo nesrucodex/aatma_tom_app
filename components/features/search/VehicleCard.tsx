@@ -7,6 +7,9 @@ import { Button } from '../../ui/Button';
 import { Collapsible } from '../../ui/Collapsible';
 import type { Vehicle, VehicleOperation } from '../../../types/vehicle.types';
 import { useVehicleDrivedData } from '@/hooks/useVehicleDrivedData';
+import { useCheckIn } from '@/hooks/useCheckIn';
+import { useEffect } from 'react';
+import { toast } from '@/lib/toast';
 
 export interface VehicleCardProps {
     vehicle: Vehicle;
@@ -48,11 +51,27 @@ export function VehicleCard({
         operations,
     );
 
+    const checkInMutation = useCheckIn()
+
+
+    const checkIn = () => {
+        checkInMutation.mutate(vehicle.id)
+    }
 
     const cfg = STATUS_BADGE[statusKey];
 
+    useEffect(() => {
+        if (checkInMutation.isSuccess) {
+            toast.success("Vehicle checked-in successfully.")
+
+        } else if (checkInMutation.isError) {
+            const errMsg = checkInMutation.error.message || "Error occured while checking in a vehicle."
+            toast.error(errMsg)
+        }
+    }, [checkInMutation.isSuccess, checkInMutation.isError, checkInMutation.error])
+
     return (
-        <View className="rounded-3xl bg-white border border-neutral-200/80 p-5 gap-4 mb-4">
+        <View className="rounded-xl border border-neutral-200/80 p-4 gap-4 mb-4">
 
             {/* Plate + badge */}
             <View className="flex-row items-center justify-between">
@@ -128,10 +147,11 @@ export function VehicleCard({
                         label="Check-in"
                         variant="default"
                         size="lg"
-                        disabled={loading}
+                        disabled={checkInMutation.isPending}
+                        loading={checkInMutation.isPending}
                         className="w-full"
                         leftIcon={<Ionicons name="checkmark-circle-outline" size={20} color="white" />}
-                        onPress={() => onAction(vehicle.id)}
+                        onPress={checkIn}
                     />
                 )}
                 {canAct && canResolveAndCheckIn && (
