@@ -8,6 +8,7 @@ import ScreeenHeader from '../../../components/shared/ScreeenHeader';
 import { useVehicleById, useVehicleDetail } from '../../../hooks/useVehicleDetail';
 import { cn } from '../../../lib/utils';
 import { useVehicleDrivedData } from '@/hooks/useVehicleDrivedData';
+import { QUERY_KEYS } from '@/config/query-keys.config';
 
 export default function VehicleScreen() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function VehicleScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <ScreeenHeader onBack={() => router.back()} backLabel="Search">
+      <ScreeenHeader onBack={() => router.back()} backLabel="Search" queryKeys={[QUERY_KEYS.VEHICLE, QUERY_KEYS.VEHICLE_DETAIL_OPERATIONS]} isFetching={isLoading}>
         <Text className="text-2xl font-bold text-white">{plate}</Text>
         {type ? <Text className="mt-1 text-xs text-zinc-400">{type}</Text> : null}
       </ScreeenHeader>
@@ -92,7 +93,7 @@ export default function VehicleScreen() {
               <Text className="text-xs text-neutral-400 mb-0.5">Assigned Route</Text>
               <View className="flex-row items-center gap-1.5">
                 <Ionicons name="map-outline" size={13} color={routeName ? '#2563eb' : '#9ca3af'} />
-                <Text className={`text-sm font-bold ${routeName ? 'text-primary' : 'text-neutral-400'}`}>
+                <Text className={`text-sm font-bold ${routeName ? 'text-neutral-900' : 'text-neutral-400'}`}>
                   {routeName || 'No route assigned'}
                 </Text>
               </View>

@@ -78,7 +78,7 @@ export default function ProfileScreen() {
             </Text>
 
           </View>
-          {opLoading ? (
+          {/* {opLoading ? (
             <ActivityIndicator size="small" color="#52525b" />
           ) : (
             <View className="flex-row gap-4 mt-1">
@@ -92,7 +92,7 @@ export default function ProfileScreen() {
                 <Text className="text-xs font-semibold text-warning-400">{!balanceVisible ? '••••••  ETB' : `${pendingPayment.toLocaleString()} ETB`}</Text>
               </View>
             </View>
-          )}
+          )} */}
         </View>
       </ScreeenHeader>
 

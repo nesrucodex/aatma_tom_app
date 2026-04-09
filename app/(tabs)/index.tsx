@@ -12,6 +12,9 @@ import { cn } from '../../lib/utils';
 import { useAuthStore } from '../../store/auth.store';
 import type { TerminalOperation } from '../../types/terminal-operation.types';
 import ScreeenHeader from '@/components/shared/ScreeenHeader';
+import { RefreshButton } from '@/components/ui/RefreshButton';
+import { QUERY_KEYS } from '@/config/query-keys.config';
+import { useQueryClient } from '@tanstack/react-query';
 
 const LANGUAGES: SelectOption[] = [
   { value: 'en', label: 'English', sublabel: 'English', icon: 'language-outline' },
@@ -51,11 +54,17 @@ export default function HomeScreen() {
   const [filter, setFilter] = useState<Filter>('all');
   const [language, setLanguage] = useState('en');
   const langSheetRef = useRef<BottomSheet>(null);
+  const queryClient = useQueryClient();
 
   const terminalId = (user?.terminalOperator as any)?.association?.terminalId as string | undefined;
 
   const { data: analyticsData, isLoading: analyticsLoading } = useAssociationAnalytics();
   const { data: operationsData, isLoading: operationsLoading } = useTerminalOperations(terminalId);
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ASSOCIATION_ANALYTICS] });
+    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TERMINAL_OPERATIONS] });
+  };
 
   const analytics = analyticsData?.data.analytics;
   const operations: TerminalOperation[] = operationsData?.data.operations ?? [];
@@ -79,10 +88,9 @@ export default function HomeScreen() {
     <>
       <SafeAreaView className="flex-1 bg-white relative" edges={['top']}>
         <ScreeenHeader
-          className="px-0"
-          classNames={{
-            terminalAssociationRoot: "px-5"
-          }}
+          className="px-0 pt-0"
+          classNames={{ terminalAssociationRoot: "px-5" }}
+          isFetching={analyticsLoading || operationsLoading}
         >
           <View className="flex-row items-center justify-between px-5 py-5">
             <View className="flex-row items-center gap-3">
@@ -96,12 +104,18 @@ export default function HomeScreen() {
               </View>
             </View>
 
-            <TouchableOpacity
-              onPress={() => langSheetRef.current?.expand()}
-              className="flex-row items-center gap-1">
-              <Text className="text-sm font-medium text-white">{currentLang?.label}</Text>
-              <Ionicons name="chevron-down" size={14} color="#9ca3af" />
-            </TouchableOpacity>
+            <View className='flex flex-row gap-4'>
+              <RefreshButton
+                onRefresh={handleRefresh}
+              />
+              <TouchableOpacity
+                onPress={() => langSheetRef.current?.expand()}
+                className="flex-row items-center gap-1">
+                <Text className="text-sm font-medium text-white">{currentLang?.label}</Text>
+                <Ionicons name="chevron-down" size={14} color="#9ca3af" />
+              </TouchableOpacity>
+            </View>
+
           </View>
 
           {analyticsLoading ? (

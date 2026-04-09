@@ -11,7 +11,6 @@ interface OperatorDetailProps {
   detail?: OperatorMemberDetail;
   isLoadingDetail?: boolean;
 }
-
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <View className="flex-1 rounded-2xl bg-neutral-50 p-4">
@@ -25,7 +24,6 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
 export function OperatorDetail({
   operationsHandled,
   revenueGenerated,
-  emergencyRequestCount,
   detail,
   isLoadingDetail,
 }: OperatorDetailProps) {
@@ -70,28 +68,52 @@ export function OperatorDetail({
         </View>
       )}
 
+      {/* User details */}
+      {detail && !isLoadingDetail && (
+        <View className="rounded-2xl bg-neutral-50 p-4 gap-3">
+          <Text className="text-xs font-semibold text-neutral-400 tracking-widest mb-1">
+            USER DETAILS
+          </Text>
+          <View className="flex-row items-center justify-between">
+            <Text className="text-sm text-neutral-500">Phone</Text>
+            <View className="flex-row items-center gap-1.5">
+              <Text className="text-sm font-bold text-neutral-900">
+                {detail.terminalOperator.user.phone ?? '—'}
+              </Text>
+            </View>
+          </View>
+          <View className="h-px bg-neutral-100" />
+          <View className="flex-row items-center justify-between">
+            <Text className="text-sm text-neutral-500">Status</Text>
+            <View className={`rounded-full px-2.5 py-1 ${detail.terminalOperator.status === 'ACTIVE' ? 'bg-success-100' : 'bg-neutral-200'}`}>
+              <Text className={`text-xs font-semibold ${detail.terminalOperator.status === 'ACTIVE' ? 'text-success-700' : 'text-neutral-500'}`}>
+                {detail.terminalOperator.status}
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
+
       {/* Emergency requests — collapsible list with real data */}
       {detail?.terminalOperator.emergencyRequests && detail.terminalOperator.emergencyRequests.length > 0 && (
         <Collapsible
           icon="warning-outline"
           title="Emergency Requests"
           badge={detail.terminalOperator.emergencyRequests.length}
-          >
+        >
           {detail.terminalOperator.emergencyRequests.map((req) => (
             <View key={req.id} className="flex-row items-start gap-3 py-3 border-b border-neutral-100">
-              <View className={`mt-1.5 h-2 w-2 rounded-full ${
-                req.status === 'RESOLVED' ? 'bg-success' :
-                req.status === 'REJECTED' ? 'bg-destructive' : 'bg-warning-400'
-              }`} />
+              <View className={`mt-1.5 h-2 w-2 rounded-full ${req.status === 'RESOLVED' ? 'bg-success' :
+                  req.status === 'REJECTED' ? 'bg-destructive' : 'bg-warning-400'
+                }`} />
               <View className="flex-1 gap-0.5">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-sm font-semibold text-neutral-900">
                     {req.vehicle?.licensePlate ?? 'Unknown vehicle'}
                   </Text>
-                  <Text className={`text-xs font-semibold ${
-                    req.status === 'RESOLVED' ? 'text-success-600' :
-                    req.status === 'REJECTED' ? 'text-destructive' : 'text-warning-600'
-                  }`}>
+                  <Text className={`text-xs font-semibold ${req.status === 'RESOLVED' ? 'text-success-600' :
+                      req.status === 'REJECTED' ? 'text-destructive' : 'text-warning-600'
+                    }`}>
                     {req.status}
                   </Text>
                 </View>

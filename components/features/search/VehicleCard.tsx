@@ -109,7 +109,7 @@ export function VehicleCard({
             {!loading && (
                 <View className="gap-0.5">
                     <Text className="text-xs text-neutral-400">Route</Text>
-                    <Text className={`text-sm font-bold ${routeName ? 'text-primary' : 'text-neutral-400'}`}>
+                    <Text className={`text-sm font-bold ${routeName ? 'text-neutral-900' : 'text-neutral-400'}`}>
                         {routeName ?? 'No route assigned'}
                     </Text>
                 </View>

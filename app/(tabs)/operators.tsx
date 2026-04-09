@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
@@ -11,6 +10,7 @@ import { useAssociationAnalytics } from '../../hooks/useHomeData';
 import { useOperatorDetail } from '../../hooks/useOperatorDetail';
 import type { AssociationAnalytics } from '../../types/association.types';
 import { OperatorDetail } from '@/components/features/operators/OperatorDetail';
+import { QUERY_KEYS } from '@/config/query-keys.config';
 
 type OperatorPerf = AssociationAnalytics['operatorsPerformance'][number];
 
@@ -22,29 +22,15 @@ function OperatorDetailScreen({
   onBack: () => void;
 }) {
   const { data: detail, isLoading } = useOperatorDetail(op.terminalOperator.id);
-  const phone = detail?.terminalOperator.user.phone;
-  const status = detail?.terminalOperator.status ?? 'ACTIVE';
-  const isActive = status === 'ACTIVE';
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <ScreeenHeader onBack={onBack} backLabel="Operators">
+      <ScreeenHeader onBack={onBack} backLabel="Operators" queryKeys={[QUERY_KEYS.OPERATOR_DETAIL]} isFetching={isLoading}>
         <View className="flex-row items-center gap-3">
           <Avatar initials={(op.terminalOperator.name ?? '?').slice(0, 2).toUpperCase()} size="md" />
           <View className="flex-1">
             <Text className="text-lg font-bold text-white">{op.terminalOperator.name ?? '—'}</Text>
             <Text className="text-xs text-zinc-400">{op.terminalOperator.role?.replace(/_/g, ' ')}</Text>
-            {phone && (
-              <View className="flex-row items-center gap-1 mt-0.5">
-                <Ionicons name="call-outline" size={11} color="#71717a" />
-                <Text className="text-xs text-zinc-500">{phone}</Text>
-              </View>
-            )}
-          </View>
-          <View className={`rounded-full px-2.5 py-1 ${isActive ? 'bg-success-900/40' : 'bg-zinc-800'}`}>
-            <Text className={`text-xs font-semibold ${isActive ? 'text-success-400' : 'text-zinc-400'}`}>
-              {status}
-            </Text>
           </View>
         </View>
       </ScreeenHeader>
@@ -77,7 +63,7 @@ export default function OperatorsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <ScreeenHeader>
+      <ScreeenHeader queryKeys={[QUERY_KEYS.ASSOCIATION_ANALYTICS]} isFetching={isLoading}>
         <View className="flex-row items-center justify-between">
           <Text className="text-2xl font-bold text-white">Operators</Text>
           {isLoading && <ActivityIndicator size="small" color="#9ca3af" />}
