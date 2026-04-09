@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { Button } from '../../../components/ui/Button';
@@ -56,6 +56,12 @@ export function OtpStep({ countdown, onComplete, onResend, loading }: Props) {
     const code = otp.join('');
     if (code.length === OTP_LENGTH) onComplete(code);
   };
+
+  useEffect(() => {
+    if (otp.length === OTP_LENGTH) {
+      handleSignIn()
+    }
+  }, [otp])
 
   return (
     <View className="gap-4">

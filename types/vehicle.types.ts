@@ -13,7 +13,7 @@ const userSchema = z.object({
 const associationSchema = z.object({
   id: z.string(),
   name: z.string(),
-  terminal: z.object({ id: z.string(), name: z.string() }).passthrough().nullable(),
+  terminal: z.object({ id: z.string(), name: z.string() }).passthrough().nullable().optional(),
 }).passthrough().optional();
 
 const operatorInfoSchema = z.object({
@@ -51,7 +51,14 @@ export const vehicleSchema = z.object({
   type: z.string(),
   status: vehicleStatusSchema,
   routeId: z.string().nullable().optional(),
-  route: z.object({ id: z.string(), name: z.string() }).nullable().optional(),
+  route: z.object({
+    id: z.string(),
+    name: z.string(),
+    fromId: z.string().optional(),
+    toId: z.string().optional(),
+    from: z.object({ id: z.string(), name: z.string() }).passthrough().optional(),
+    to: z.object({ id: z.string(), name: z.string() }).passthrough().optional(),
+  }).nullable().optional(),
   terminalOperations: z.array(vehicleOperationSchema).optional(),
   createdAt: z.string(),
   updatedAt: z.string(),

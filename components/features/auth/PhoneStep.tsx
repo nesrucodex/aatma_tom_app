@@ -4,6 +4,7 @@ import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { Button } from '../../ui/Button';
 import { cn } from '../../../lib/utils';
+import { PhoneInput } from '@/components/ui/PhoneInput';
 
 const ET_PHONE_RE = /^[97]\d{8}$/;
 
@@ -33,50 +34,12 @@ export function PhoneStep({ phone, setPhone, onNext, loading }: Props) {
 
   return (
     <View className="gap-5">
-      <View className="gap-1.5">
-        <Text className="text-base font-semibold text-gray-700">Phone Number</Text>
+      <PhoneInput
+        value={phone}
+        onChange={handleChange}
+        label='Phone Number'
 
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={() => inputRef.current?.focus()}
-          className={cn(
-            'h-16 flex-row items-center rounded-2xl border bg-gray-50 px-4',
-            focused ? 'border-blue-600' : 'border-gray-200',
-            showError && 'border-red-500 bg-red-50'
-          )}>
-          <View className="flex-row items-center gap-2 border-r border-gray-200 pr-3 mr-3">
-            <Text className="text-base">🇪🇹</Text>
-            <Text className="text-base font-semibold text-gray-800">+251</Text>
-          </View>
-
-          <TextInput
-            ref={inputRef}
-            className="flex-1 text-base font-medium text-gray-900"
-            placeholder="9XXXXXXXX"
-            keyboardType="number-pad"
-            value={phone}
-            onChangeText={handleChange}
-            onFocus={() => setFocused(true)}
-            onBlur={() => { setFocused(false); setTouched(true); }}
-            placeholderTextColor="#d1d5db"
-            maxLength={9}
-          />
-
-          {phone.length > 0 && (
-            <Ionicons
-              name={isValid ? 'checkmark-circle' : 'close-circle'}
-              size={18}
-              color={isValid ? '#16a34a' : '#ef4444'}
-            />
-          )}
-        </TouchableOpacity>
-
-        {showError && (
-          <Text className="text-xs text-red-500">
-            Enter a valid Ethiopian number (e.g. 962875515)
-          </Text>
-        )}
-      </View>
+      />
 
       <Button
         label="Next"

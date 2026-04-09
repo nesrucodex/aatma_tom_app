@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 
 import { cn } from '../../lib/utils';
 
-const alertVariants = cva('rounded-xl border p-3 gap-1', {
+const alertVariants = cva('rounded-none border-none  p-3 gap-1', {
   variants: {
     variant: {
       warning:     'bg-warning-50 border-warning-200',
@@ -16,7 +16,7 @@ const alertVariants = cva('rounded-xl border p-3 gap-1', {
   defaultVariants: { variant: 'warning' },
 });
 
-const alertTitleVariants = cva('text-sm font-bold', {
+const alertTitleVariants = cva('text-base font-bold', {
   variants: {
     variant: {
       warning:     'text-warning-700',
@@ -28,7 +28,7 @@ const alertTitleVariants = cva('text-sm font-bold', {
   defaultVariants: { variant: 'warning' },
 });
 
-const alertDescVariants = cva('text-xs leading-4', {
+const alertDescVariants = cva('text-sm leading-4', {
   variants: {
     variant: {
       warning:     'text-warning-600',

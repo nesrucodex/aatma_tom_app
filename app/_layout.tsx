@@ -13,11 +13,11 @@ import { useAuthStore } from '../store/auth.store';
 import { debug } from '@/lib/debug';
 
 function AuthGate() {
-  const { isAuthenticated, isLoading, loadAuth, user } = useAuthStore();
+  const { isAuthenticated, isLoading, loadAuth, user, tokens } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
 
-  debug.log("AuthGate", {isAuthenticated, user})
+  debug.log("AuthGate", {isAuthenticated, user, tokens})
 
   useEffect(() => { loadAuth(); }, []);
 

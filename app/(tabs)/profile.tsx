@@ -35,7 +35,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <ScreeenHeader className="pb-8">
+      <ScreeenHeader>
         {/* Avatar + identity */}
         <View className="flex-row items-center gap-3 mb-6">
           {isLoading ? (

@@ -18,6 +18,16 @@ export const vehicleService = {
     return vehicleResponseSchema.parse(res.data).data.vehicle;
   },
 
+  getById: async (vehicleId: string): Promise<Vehicle> => {
+    const res = await apiClient.get(`/vehicles/${vehicleId}`);
+    const parsed = vehicleResponseSchema.safeParse(res.data);
+    if (!parsed.success) {
+      console.warn('[vehicleService.getById] parse error:', JSON.stringify(parsed.error.issues.slice(0, 3), null, 2));
+      return res.data?.data?.vehicle as Vehicle;
+    }
+    return parsed.data.data.vehicle;
+  },
+
   getOperations: async (vehicleId: string): Promise<VehicleOperation[]> => {
     const res = await apiClient.get(`/vehicles/${vehicleId}/terminal-operations`, {
       params: { page: 1, limit: 20 },

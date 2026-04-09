@@ -9,6 +9,7 @@ export { EmptyState, type EmptyStateProps, type EmptyStateAction } from './ui/Em
 export { ErrorState } from './ui/ErrorState';
 export { Input } from './ui/Input';
 export { LoadingState } from './ui/LoadingState';
+export { PhoneInput } from './ui/PhoneInput';
 export { RadioOption } from './ui/RadioOption';
 export { SelectSheet, type SelectOption } from './ui/SelectSheet';
 export { Sheet } from './ui/Sheet';

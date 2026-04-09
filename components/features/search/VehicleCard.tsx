@@ -1,53 +1,24 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRef, useState } from 'react';
-import {
-    Animated,
-    LayoutAnimation,
-    Platform,
-    Text,
-    TouchableOpacity,
-    UIManager,
-    View,
-} from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Alert } from '../../ui/Alert';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
-import { debug } from '@/lib/debug';
-
-if (Platform.OS === 'android') {
-    UIManager.setLayoutAnimationEnabledExperimental?.(true);
-}
-
-export type VehicleStatus = 'checked-out' | 'checked-in' | 'conflict';
-
-export interface TimelineItem {
-    label: string;
-    time: string;
-    station: string;
-}
+import { Collapsible } from '../../ui/Collapsible';
+import type { Vehicle, VehicleOperation } from '../../../types/vehicle.types';
+import { useVehicleDrivedData } from '@/hooks/useVehicleDrivedData';
 
 export interface VehicleCardProps {
-    plate: string;
-    status: VehicleStatus;
-    station: string;
-    operator: string;
-    duration: string;
-    route?: string | null;
-    timeline: TimelineItem[];
-    conflictStation?: string;
+    vehicle: Vehicle;
+    operations?: VehicleOperation[];
     loading?: boolean;
-    onAction: () => void;
-    onViewDetail: () => void;
+    onAction: (vehicleId: string) => void;
+    onViewDetail: (vehicleId: string) => void;
 }
 
-const STATUS_CONFIG: Record<
-    VehicleStatus,
-    { badgeVariant: 'success' | 'warning' | 'danger' | 'default'; label: string; icon: React.ComponentProps<typeof Ionicons>['name'] }
-> = {
-    'checked-out': { badgeVariant: 'success', label: 'Checked Out', icon: 'checkmark-circle' },
-    'checked-in': { badgeVariant: 'default', label: 'Checked In', icon: 'radio-button-on' },
-    'conflict': { badgeVariant: 'warning', label: 'Conflict', icon: 'warning' },
+const STATUS_BADGE = {
+    'checked-out': { variant: 'success' as const, label: 'Checked Out' },
+    'checked-in': { variant: 'default' as const, label: 'Checked In' },
 };
 
 function Skeleton({ className }: { className?: string }) {
@@ -55,43 +26,30 @@ function Skeleton({ className }: { className?: string }) {
 }
 
 export function VehicleCard({
-    plate,
-    status,
-    station,
-    operator,
-    duration,
-    route,
-    timeline,
-    conflictStation,
+    vehicle,
+    operations = [],
     loading = false,
     onAction,
     onViewDetail,
 }: VehicleCardProps) {
-    const [timelineOpen, setTimelineOpen] = useState(true);
-    const rotation = useRef(new Animated.Value(1)).current;
-    const cfg = STATUS_CONFIG[status];
-    debug.log("VehicleCard", {
-        status,
-        cfg
-    })
-    const isConflict = status === 'conflict';
+    const {
+        isEmptyOperation,
+        isCheckedOut,
+        statusKey,
+        station,
+        operator,
+        duration,
+        routeName,
+        canAct,
+        canResolveAndCheckIn,
+        timeline,
+    } = useVehicleDrivedData(
+        vehicle,
+        operations,
+    );
 
-    const toggle = () => {
-        LayoutAnimation.configureNext({
-            duration: 240,
-            create: { type: 'easeInEaseOut', property: 'opacity' },
-            update: { type: 'easeInEaseOut', property: 'scaleY' },
-            delete: { type: 'easeInEaseOut', property: 'opacity' },
-        });
-        Animated.timing(rotation, {
-            toValue: timelineOpen ? 0 : 1,
-            duration: 240,
-            useNativeDriver: true,
-        }).start();
-        setTimelineOpen((p) => !p);
-    };
 
-    const rotate = rotation.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '0deg'] });
+    const cfg = STATUS_BADGE[statusKey];
 
     return (
         <View className="rounded-3xl bg-white border border-neutral-200/80 p-5 gap-4 mb-4">
@@ -99,13 +57,10 @@ export function VehicleCard({
             {/* Plate + badge */}
             <View className="flex-row items-center justify-between">
                 {loading ? <Skeleton className="h-8 w-36" /> : (
-                    <Text className="text-3xl font-black text-neutral-900">{plate}</Text>
+                    <Text className="text-3xl font-black text-neutral-900">{vehicle.licensePlate}</Text>
                 )}
                 {loading ? <Skeleton className="h-6 w-24" /> : (
-                    <View className="flex-row items-center gap-1.5">
-                        <Ionicons name={cfg.icon} size={14} color={isConflict ? '#d97706' : '#16a34a'} />
-                        <Badge label={cfg.label} variant={cfg.badgeVariant} />
-                    </View>
+                    !isEmptyOperation && <Badge label={cfg.label} variant={cfg.variant} />
                 )}
             </View>
 
@@ -133,29 +88,17 @@ export function VehicleCard({
 
             {/* Route */}
             {!loading && (
-                <View className="flex-row items-center gap-1.5">
-                    <Ionicons
-                        name="map-outline"
-                        size={13}
-                        color={route ? '#2563eb' : '#9ca3af'}
-                    />
-                    <Text className={`text-xs font-medium ${route ? 'text-primary' : 'text-neutral-400'}`}>
-                        {route ?? 'No route assigned'}
+                <View className="gap-0.5">
+                    <Text className="text-xs text-neutral-400">Route</Text>
+                    <Text className={`text-sm font-bold ${routeName ? 'text-primary' : 'text-neutral-400'}`}>
+                        {routeName ?? 'No route assigned'}
                     </Text>
                 </View>
             )}
 
-            {/* Conflict warning */}
-            {!loading && isConflict && conflictStation && (
-                <Alert
-                    title={`Active at ${conflictStation}`}
-                    description="This vehicle is checked in at another station. Resolve to continue."
-                />
-            )}
-
             <View className="h-px bg-neutral-100" />
 
-            {/* Collapsible timeline */}
+            {/* Timeline */}
             {loading ? (
                 <View className="gap-3">
                     <Skeleton className="h-4 w-32" />
@@ -163,62 +106,60 @@ export function VehicleCard({
                     <Skeleton className="h-4 w-40" />
                 </View>
             ) : (
-                <View>
-                    <TouchableOpacity
-                        onPress={toggle}
-                        activeOpacity={0.7}
-                        className="flex-row items-center gap-2">
-                        <Ionicons name="receipt-outline" size={14} color="#9ca3af" />
-                        <Text className="flex-1 text-xs font-semibold text-neutral-500">Activity Timeline</Text>
-                        <Animated.View style={{ transform: [{ rotate }] }}>
-                            <Ionicons name="chevron-up" size={14} color="#9ca3af" />
-                        </Animated.View>
-                    </TouchableOpacity>
-
-                    {timelineOpen && (
-                        <View className="mt-3 gap-3">
-                            {timeline.map((item, i) => (
-                                <View key={i} className="flex-row items-start gap-3">
-                                    <View className="mt-1.5 h-2 w-2 rounded-full bg-neutral-300" />
-                                    <View>
-                                        <Text className="text-sm font-semibold text-neutral-800">{item.label}</Text>
-                                        <Text className="text-xs text-neutral-400">{item.time} · {item.station}</Text>
-                                    </View>
-                                </View>
-                            ))}
+                <Collapsible icon="receipt-outline" title="Activity Timeline" badge={timeline.length} defaultOpen>
+                    {timeline.length === 0 ? (
+                        <Text className="text-xs text-neutral-400">No activity recorded</Text>
+                    ) : timeline.map((item, i) => (
+                        <View key={i} className="flex-row items-start gap-3 py-1">
+                            <View className="mt-1.5 h-2 w-2 rounded-full bg-neutral-300" />
+                            <View>
+                                <Text className="text-sm font-semibold text-neutral-800">{item.label}</Text>
+                                <Text className="text-xs text-neutral-400">{item.time} · {item.station}</Text>
+                            </View>
                         </View>
-                    )}
-                </View>
+                    ))}
+                </Collapsible>
             )}
 
             {/* Actions */}
             <View className="gap-2.5 mt-1">
-                <Button
-                    label={isConflict ? 'Resolve & Check-in' : 'Check-in'}
-                    variant="default"
-                    size="lg"
-                    disabled={loading}
-                    className="w-full"
-                    leftIcon={
-                        <Ionicons
-                            name={isConflict ? 'flash' : 'checkmark-circle-outline'}
-                            size={20}
-                            color="white"
-                        />
-                    }
-                    onPress={onAction}
-                />
-
+                {canAct && isCheckedOut && (
+                    <Button
+                        label="Check-in"
+                        variant="default"
+                        size="lg"
+                        disabled={loading}
+                        className="w-full"
+                        leftIcon={<Ionicons name="checkmark-circle-outline" size={20} color="white" />}
+                        onPress={() => onAction(vehicle.id)}
+                    />
+                )}
+                {canAct && canResolveAndCheckIn && (
+                    <Button
+                        label="Resolve & Check-in"
+                        variant="default"
+                        size="lg"
+                        disabled={loading}
+                        className="w-full"
+                        leftIcon={<Ionicons name="flash" size={20} color="white" />}
+                        onPress={() => onAction(vehicle.id)}
+                    />
+                )}
+                {!canAct && (
+                    <Alert
+                        variant="info"
+                        title="Not on your route"
+                        description="This vehicle's route does not pass through your terminal."
+                    />
+                )}
                 <Button
                     label="View Details"
                     variant="outline"
                     size="md"
                     disabled={loading}
                     className="w-full"
-                    leftIcon={
-                        <Ionicons name="document-text-outline" size={16} color="#1d4ed8" />
-                    }
-                    onPress={onViewDetail}
+                    leftIcon={<Ionicons name="document-text-outline" size={16} color="#1d4ed8" />}
+                    onPress={() => onViewDetail(vehicle.id)}
                 />
             </View>
         </View>

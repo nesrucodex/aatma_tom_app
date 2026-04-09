@@ -1,12 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRef, useState } from 'react';
-import { Animated, LayoutAnimation, Platform, Text, TouchableOpacity, UIManager, View } from 'react-native';
+import { Animated, LayoutAnimation, Platform, Text, TouchableOpacity, View } from 'react-native';
 
 import { cn } from '../../lib/utils';
 
-if (Platform.OS === 'android') {
-  UIManager.setLayoutAnimationEnabledExperimental?.(true);
-}
 
 interface CollapsibleProps {
   title: string;
@@ -67,7 +64,7 @@ export function Collapsible({
         </Animated.View>
       </TouchableOpacity>
 
-      {open && <View className="mt-3">{children}</View>}
+      {open && <View className="mt-3 ml-1">{children}</View>}
     </View>
   );
 }

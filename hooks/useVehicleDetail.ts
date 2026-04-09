@@ -17,3 +17,12 @@ export function useVehicleDetail(vehicleId: string | undefined) {
     refetch: operationsQuery.refetch,
   };
 }
+
+export function useVehicleById(vehicleId: string | undefined) {
+  return useQuery({
+    queryKey: ['vehicle', vehicleId],
+    queryFn: () => vehicleService.getById(vehicleId!),
+    enabled: !!vehicleId,
+    staleTime: 1000 * 60,
+  });
+}

@@ -47,10 +47,10 @@ function ToastCard({ item, index }: { item: ToastItem; index: number }) {
   }, []);
 
   const offset = TOASTER_CONFIG.position === 'top'
-    ? TOASTER_CONFIG.offsetTop + index * 80
+    ? TOASTER_CONFIG.offsetTop + index * 65
     : undefined;
   const bottomOffset = TOASTER_CONFIG.position === 'bottom'
-    ? TOASTER_CONFIG.offsetBottom + index * 80
+    ? TOASTER_CONFIG.offsetBottom + index * 65
     : undefined;
 
   return (

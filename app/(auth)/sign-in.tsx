@@ -61,7 +61,7 @@ export default function SignInScreen() {
           {step === 'otp' && (
             <TouchableOpacity
               onPress={() => setStep('phone')}
-              className="absolute left-4 top-4 flex-row items-center gap-1 rounded-full bg-black/40 px-3 py-2">
+              className="absolute left-4 top-4 flex-row items-center gap-1 rounded-lg bg-black/40 px-3 py-2">
               <Ionicons name="chevron-back" size={16} color="white" />
               <Text className="text-sm font-medium text-white">Back</Text>
             </TouchableOpacity>
@@ -94,8 +94,8 @@ export default function SignInScreen() {
             />
           )}
         </View>
-        <Text>EXPO_PUBLIC_API_URL: {env.EXPO_PUBLIC_API_URL}</Text>
-        <Text>EXPO_PUBLIC_APP_ENV: {env.EXPO_PUBLIC_APP_ENV}</Text>
+        {/* <Text>EXPO_PUBLIC_API_URL: {env.EXPO_PUBLIC_API_URL}</Text>
+        <Text>EXPO_PUBLIC_APP_ENV: {env.EXPO_PUBLIC_APP_ENV}</Text> */}
         {/* <Link href={"/(tabs)"} className='text-white bg-primary w-20 text-center rounded-full py-2'>SKIP</Link> */}
       </KeyboardAvoidingView>
     </SafeAreaView>

@@ -10,15 +10,28 @@ type Props = PropsWithChildren & {
   className?: ClassValue;
   onBack?: () => void;
   backLabel?: string;
+  classNames?: {
+    terminalRoot?: ClassValue,
+    associationRoot?: ClassValue,
+    terminalAssociationRoot?: ClassValue
+  }
 };
 
-const ScreeenHeader = ({ children, className, onBack, backLabel = 'Back' }: Props) => {
+const ScreeenHeader = ({ children, className, classNames, onBack, backLabel = 'Back' }: Props) => {
   const { data: userDetail } = useCurrentUser();
   const terminalName = userDetail?.terminalOperator?.association?.terminal?.name;
   const associationName = userDetail?.terminalOperator?.association?.name;
 
   return (
-    <View className={cn('bg-zinc-950 px-5 pb-5 pt-8 relative rounded-b-2xl', className)}>
+    <View className={cn('bg-zinc-950 px-5 pb-5 pt-8 relative rounded-b-2xl', className)}
+      style={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.07,
+        shadowRadius: 16,
+        elevation: 16,
+      }}
+    >
       <View className="absolute -top-10 inset-0 h-20 bg-zinc-950 -z-[99]" />
 
       {onBack && (
@@ -34,7 +47,7 @@ const ScreeenHeader = ({ children, className, onBack, backLabel = 'Back' }: Prop
       {children}
 
       {(terminalName || associationName) && (
-        <View className="flex-row items-center gap-3 mt-4 pt-3 border-t border-zinc-800">
+        <View className={cn("flex-row items-center gap-3 mt-4 pt-3 border-t border-zinc-800", classNames?.terminalAssociationRoot)}>
           {terminalName && (
             <View className="flex-row items-center gap-1.5">
               <Ionicons name="location-outline" size={12} color="#52525b" />

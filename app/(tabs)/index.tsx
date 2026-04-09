@@ -78,7 +78,12 @@ export default function HomeScreen() {
   return (
     <>
       <SafeAreaView className="flex-1 bg-white relative" edges={['top']}>
-        <ScreeenHeader className="px-0 pt-0">
+        <ScreeenHeader
+          className="px-0"
+          classNames={{
+            terminalAssociationRoot: "px-5"
+          }}
+        >
           <View className="flex-row items-center justify-between px-5 py-5">
             <View className="flex-row items-center gap-3">
               <Avatar initials={(user?.name ?? 'U').slice(0, 2).toUpperCase()} size="md" bgColor="white" textColor="black" />

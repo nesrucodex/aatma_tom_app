@@ -6,9 +6,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { EmptyState } from '../../../components';
 import { VehicleCard } from '../../../components/features/search/VehicleCard';
 import ScreeenHeader from '../../../components/shared/ScreeenHeader';
+import { useCurrentUser } from '../../../hooks/useCurrentUser';
 import { useVehicleSearch } from '../../../hooks/useVehicleSearch';
 import type { Vehicle } from '../../../types/vehicle.types';
-import { debug } from '@/lib/debug';
 
 function ResultRow({ vehicle, onPress }: { vehicle: Vehicle; onPress: () => void }) {
   const latestOp = vehicle.terminalOperations?.[0];
@@ -36,25 +36,13 @@ function ResultRow({ vehicle, onPress }: { vehicle: Vehicle; onPress: () => void
 
 export default function SearchScreen() {
   const router = useRouter();
-  const {
-    query, setQuery,
-    results, isSearching,
-    vehicle, operations, isLoadingDetail,
-    selectVehicle, clearSelection,
-  } = useVehicleSearch();
+  const { data: userDetail } = useCurrentUser();
+  const managerTerminalId = userDetail?.terminalOperator?.association?.terminal?.id;
+
+  const { query, setQuery, results, isSearching, vehicle, operations, isLoadingDetail, selectVehicle, clearSelection } =
+    useVehicleSearch();
 
   const latestOp = operations[0];
-  debug.log("SearchScreen", {
-    latestOp
-  })
-  const isCheckedOut = latestOp?.type === "CHECK_OUT";
-  const status = isCheckedOut ? 'checked-out' : 'checked-in';
-
-  const timeline = operations.slice(0, 5).map((op) => ({
-    label: op.type === 'CHECK_IN' ? 'Checked in' : 'Checked out',
-    time: new Date(op.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    station: op.terminal?.name ?? op.checkInTerminalOperator?.association?.terminal?.name ?? '—',
-  }));
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
@@ -90,7 +78,6 @@ export default function SearchScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 }}>
 
-        {/* Empty prompt */}
         {!query && !vehicle && (
           <EmptyState
             icon="search-outline"
@@ -100,9 +87,8 @@ export default function SearchScreen() {
           />
         )}
 
-        {/* Results list — shown while typing, before selecting */}
         {!vehicle && results.length > 0 && (
-          <View className="rounded-b-xl bg-white border border-neutral-100 px-4 overflow-hidden"
+          <View className="rounded-b-xl bg-white border border-neutral-100 px-4 overflow-hidden mb-4"
             style={{ shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 }}>
             {results.map((v) => (
               <ResultRow key={v.id} vehicle={v} onPress={() => selectVehicle(v)} />
@@ -110,7 +96,6 @@ export default function SearchScreen() {
           </View>
         )}
 
-        {/* No results */}
         {!vehicle && query.length >= 2 && !isSearching && results.length === 0 && (
           <EmptyState
             icon="car-outline"
@@ -120,56 +105,27 @@ export default function SearchScreen() {
           />
         )}
 
-        {/* Loading detail skeleton */}
-        {isLoadingDetail && (
+        {isLoadingDetail && vehicle && (
           <VehicleCard
             loading
-            plate=""
-            status="checked-out"
-            station=""
-            operator=""
-            duration=""
-            timeline={[]}
-            onAction={() => { }} onViewDetail={() => { }}
+            vehicle={vehicle}
+            operations={operations}
+            onAction={() => {}}
+            onViewDetail={() => {}}
           />
         )}
 
-        {/* Selected vehicle card */}
+        {/* Result card */}
         {vehicle && !isLoadingDetail && (
           <VehicleCard
-            plate={vehicle.licensePlate}
-            status={status}
-            station={latestOp?.terminal?.name ?? latestOp?.checkInTerminalOperator?.association?.terminal?.name ?? '—'}
-            operator={latestOp?.checkInTerminalOperator?.user?.name ?? '—'}
-            duration={
-              latestOp
-                ? new Date(latestOp.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                : '—'
+            vehicle={vehicle}
+            operations={operations}
+            onAction={(vehicleId) =>
+              router.push({ pathname: '/(tabs)/search/resolve', params: { vehicleId } })
             }
-            route={vehicle.route?.name ?? null}
-            timeline={timeline}
-            onAction={() => router.push({
-              pathname: '/(tabs)/search/resolve',
-              params: {
-                vehicleId: vehicle.id,
-                plate: vehicle.licensePlate,
-                operator: latestOp?.checkInTerminalOperator?.user?.name ?? '—',
-                station: latestOp?.terminal?.name ?? '—',
-                duration: latestOp
-                  ? new Date(latestOp.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                  : '—',
-              },
-            })}
-            onViewDetail={() => router.push({
-              pathname: '/(tabs)/search/vehicle',
-              params: {
-                id: vehicle.id,
-                plate: vehicle.licensePlate,
-                type: vehicle.type,
-                routeName: vehicle.route?.name ?? '',
-                status: vehicle.status,
-              },
-            })}
+            onViewDetail={(vehicleId) =>
+              router.push({ pathname: '/(tabs)/search/vehicle', params: { vehicleId } })
+            }
           />
         )}
       </ScrollView>

@@ -6,6 +6,7 @@ export default function SearchLayout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="vehicle" />
       <Stack.Screen name="resolve" />
+      <Stack.Screen name="pending" />
       <Stack.Screen name="resolved" />
     </Stack>
   );
