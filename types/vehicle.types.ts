@@ -8,25 +8,25 @@ const userSchema = z.object({
   id: z.string(),
   name: z.string().nullable(),
   phone: z.string().nullable(),
-}).passthrough();
+}).loose();
 
 const associationSchema = z.object({
   id: z.string(),
   name: z.string(),
-  terminal: z.object({ id: z.string(), name: z.string() }).passthrough().nullable().optional(),
-}).passthrough().optional();
+  terminal: z.object({ id: z.string(), name: z.string() }).loose().nullable().optional(),
+}).loose().optional();
 
 const operatorInfoSchema = z.object({
   userId: z.string(),
   status: z.string(),
   user: userSchema.optional(),
   association: associationSchema,
-}).passthrough().optional();
+}).loose().optional();
 
 const terminalSchema = z.object({
   id: z.string(),
   name: z.string(),
-}).passthrough().optional();
+}).loose().optional();
 
 export const vehicleOperationSchema = z.object({
   id: z.string(),
@@ -39,7 +39,7 @@ export const vehicleOperationSchema = z.object({
   checkInTerminalOperator: operatorInfoSchema,
   checkOutTerminalOperator: operatorInfoSchema.nullable().optional(),
   transaction: z.unknown().nullable().optional(),
-}).passthrough();
+}).loose();
 
 export const vehicleSchema = z.object({
   id: z.string(),
@@ -56,12 +56,16 @@ export const vehicleSchema = z.object({
     name: z.string(),
     fromId: z.string().optional(),
     toId: z.string().optional(),
-    from: z.object({ id: z.string(), name: z.string() }).passthrough().optional(),
-    to: z.object({ id: z.string(), name: z.string() }).passthrough().optional(),
+    from: z.object({ id: z.string(), name: z.string() }).loose().optional(),
+    to: z.object({ id: z.string(), name: z.string() }).loose().optional(),
   }).nullable().optional(),
   terminalOperations: z.array(vehicleOperationSchema).optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
+  vehicleMetadata: z.object({
+    driverName: z.string().optional(),
+    driverPhone: z.string().optional()
+  }).optional()
 });
 
 export const vehicleResponseSchema = z.object({

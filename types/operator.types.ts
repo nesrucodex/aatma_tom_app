@@ -62,14 +62,20 @@ export const operatorMemberDetailSchema = z.object({
         name: z.string(),
         status: z.string(),
       }).passthrough(),
-      checkInTerminalOperations: z.array(operationItemSchema),
-      checkOutTerminalOperations: z.array(operationItemSchema),
       emergencyRequests: z.array(emergencyRequestSchema).optional(),
     }).passthrough(),
+    terminalOperations: z.array(operationItemSchema),
     receivedSalary: z.number(),
     pendingPayment: z.number(),
     totalEarning: z.number(),
     operatorSalaryTransactions: z.array(salaryPaymentSchema),
+    opsPagination: z.object({
+      page: z.number(),
+      limit: z.number(),
+      checkInTotal: z.number(),
+      checkOutTotal: z.number(),
+      total: z.number(),
+    }),
   }),
 });
 

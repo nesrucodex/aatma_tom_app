@@ -14,5 +14,6 @@ export { RadioOption } from './ui/RadioOption';
 export { SelectSheet, type SelectOption } from './ui/SelectSheet';
 export { Sheet } from './ui/Sheet';
 export { Textarea } from './ui/Textarea';
+export { Timeline, type TimelineItem } from './ui/Timeline';
 export { Toast } from './ui/Toast';
 export { Toaster } from './ui/Toaster';

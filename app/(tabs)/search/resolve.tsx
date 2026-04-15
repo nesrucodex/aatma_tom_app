@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -12,6 +12,7 @@ import { parseApiError } from '../../../lib/api-error';
 import { toast } from '../../../lib/toast';
 import { terminalOperationService } from '../../../services/terminal-operation.service';
 import { useVehicleDrivedData } from '@/hooks/useVehicleDrivedData';
+import { debug } from '@/lib/debug';
 
 export default function ResolveScreen() {
   const router = useRouter();
@@ -40,6 +41,16 @@ export default function ResolveScreen() {
     onError: (err) => toast.error(parseApiError(err)),
   });
 
+  debug.log("Driver metadata", {
+    vehicle
+  })
+
+  useEffect(() => {
+    if(vehicle?.vehicleMetadata) {
+      setPhone(vehicle.vehicleMetadata.driverPhone?.replace("+251", "") || "")
+    }
+  }, [vehicle?.vehicleMetadata])
+
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       <ScreeenHeader onBack={() => router.back()} backLabel="Vehicle">
@@ -60,9 +71,9 @@ export default function ResolveScreen() {
             <Text className="text-2xl font-black text-neutral-900 mb-3">{plate}</Text>
             <View className="flex-row gap-6">
               {[
-                { label: 'Station',  value: station  },
+                { label: 'Station', value: station },
                 { label: 'Operator', value: operator },
-                { label: 'Time',     value: duration },
+                { label: 'Time', value: duration },
               ].map((item) => (
                 <View key={item.label}>
                   <Text className="text-xs text-neutral-400">{item.label}</Text>

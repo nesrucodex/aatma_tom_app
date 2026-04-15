@@ -11,6 +11,7 @@ import { useOperatorDetail } from '../../hooks/useOperatorDetail';
 import type { AssociationAnalytics } from '../../types/association.types';
 import { OperatorDetail } from '@/components/features/operators/OperatorDetail';
 import { QUERY_KEYS } from '@/config/query-keys.config';
+import { debug } from '@/lib/debug';
 
 type OperatorPerf = AssociationAnalytics['operatorsPerformance'][number];
 
@@ -22,6 +23,8 @@ function OperatorDetailScreen({
   onBack: () => void;
 }) {
   const { data: detail, isLoading } = useOperatorDetail(op.terminalOperator.id);
+
+  debug.log("OperatorDetailScreen", { op, detail })
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>

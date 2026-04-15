@@ -2,8 +2,9 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
 import { env } from '../config/env.config';
 import { tokenStorage } from './token-storage';
+import { debug } from './debug';
 
-const SHOW_LOGS = false
+const SHOW_LOGS = true
 
 export const apiClient = axios.create({
   baseURL: env.EXPO_PUBLIC_API_URL,
@@ -22,11 +23,16 @@ apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) =>
   }
 
   if (SHOW_LOGS && __DEV__) {
-    console.log(
-      `\n📤 [API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`,
-      ...(config.params ? ['\n  params:', config.params] : []),
-      ...(config.data ? ['\n  body:', config.data] : []),
-    );
+    debug.log(`\n📤 [API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`,
+      {
+        ...(config.params ? ['\n  params:', config.params] : []),
+        ...(config.data ? ['\n  body:', config.data] : []),
+      })
+    // console.log(
+    //   `\n📤 [API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`,
+    //   ...(config.params ? ['\n  params:', config.params] : []),
+    //   ...(config.data ? ['\n  body:', config.data] : []),
+    // );
   }
 
   return config;
@@ -36,19 +42,21 @@ apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) =>
 apiClient.interceptors.response.use(
   (response) => {
     if (SHOW_LOGS && __DEV__) {
-      console.log(
-        `\n📥 [API] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`,
-        '\n  data:', response.data,
-      );
+
+      debug.log(`\n📥 [API] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`,
+        {
+          // 'data:': response.data,
+        })
     }
     return response;
   },
+
   async (error: AxiosError) => {
     if (SHOW_LOGS && __DEV__) {
-      console.warn(
-        `\n❌ [API] ${error.response?.status ?? 'ERR'} ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
-        '\n  error:', error.response?.data ?? error.message,
-      );
+      debug.log(`\n❌[API] ${error.response?.status ?? 'ERR'} ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
+        {
+          'error:': error.response?.data ?? error.message,
+        })
     }
 
     if (error.response?.status === 401) {

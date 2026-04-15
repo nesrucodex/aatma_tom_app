@@ -15,6 +15,7 @@ import ScreeenHeader from '@/components/shared/ScreeenHeader';
 import { RefreshButton } from '@/components/ui/RefreshButton';
 import { QUERY_KEYS } from '@/config/query-keys.config';
 import { useQueryClient } from '@tanstack/react-query';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 const LANGUAGES: SelectOption[] = [
   { value: 'en', label: 'English', sublabel: 'English', icon: 'language-outline' },
@@ -50,7 +51,7 @@ function ActivitySkeleton() {
 }
 
 export default function HomeScreen() {
-  const user = useAuthStore((s) => s.user);
+  const { data: user } = useCurrentUser();
   const [filter, setFilter] = useState<Filter>('all');
   const [language, setLanguage] = useState('en');
   const langSheetRef = useRef<BottomSheet>(null);
@@ -60,6 +61,7 @@ export default function HomeScreen() {
 
   const { data: analyticsData, isLoading: analyticsLoading } = useAssociationAnalytics();
   const { data: operationsData, isLoading: operationsLoading } = useTerminalOperations(terminalId);
+
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ASSOCIATION_ANALYTICS] });

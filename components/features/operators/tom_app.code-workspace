@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "tom_app",
+			"path": "../../.."
+		},
+		{
+			"name": "AATMA-Backend",
+			"path": "../../../../AATMA-Backend"
+		},
+		{
+			"path": "../../../../AATMA-Dashboard"
+		}
+	],
+	"settings": {
+	}
+}

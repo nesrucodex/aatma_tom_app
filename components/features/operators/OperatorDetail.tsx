@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { ActivityIndicator, Text, View } from 'react-native';
 
-import { Collapsible } from '../../../components';
+import { Collapsible, Timeline } from '../../../components';
 import type { OperatorMemberDetail } from '../../../types/operator.types';
+import { debug } from '@/lib/debug';
 
 interface OperatorDetailProps {
   operationsHandled: number;
@@ -27,15 +28,17 @@ export function OperatorDetail({
   detail,
   isLoadingDetail,
 }: OperatorDetailProps) {
-  const checkIns = detail?.terminalOperator.checkInTerminalOperations.length ?? 0;
-  const checkOuts = detail?.terminalOperator.checkOutTerminalOperations.length ?? 0;
+  const checkIns  = detail?.opsPagination.checkInTotal ?? 0;
+  const checkOuts = detail?.opsPagination.checkOutTotal ?? 0;
 
-  const recentOps = [
-    ...(detail?.terminalOperator.checkInTerminalOperations ?? []),
-    ...(detail?.terminalOperator.checkOutTerminalOperations ?? []),
-  ]
+  const recentOps = (detail?.terminalOperations ?? [])
+    .slice()
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 8);
+
+
+
+  debug.log("OperatorDetailScreen", { checkIns, checkOuts, recentOps, detail })
 
   return (
     <View className="gap-5 pb-8">
@@ -104,7 +107,7 @@ export function OperatorDetail({
           {detail.terminalOperator.emergencyRequests.map((req) => (
             <View key={req.id} className="flex-row items-start gap-3 py-3 border-b border-neutral-100">
               <View className={`mt-1.5 h-2 w-2 rounded-full ${req.status === 'RESOLVED' ? 'bg-success' :
-                  req.status === 'REJECTED' ? 'bg-destructive' : 'bg-warning-400'
+                req.status === 'REJECTED' ? 'bg-destructive' : 'bg-warning-400'
                 }`} />
               <View className="flex-1 gap-0.5">
                 <View className="flex-row items-center justify-between">
@@ -112,7 +115,7 @@ export function OperatorDetail({
                     {req.vehicle?.licensePlate ?? 'Unknown vehicle'}
                   </Text>
                   <Text className={`text-xs font-semibold ${req.status === 'RESOLVED' ? 'text-success-600' :
-                      req.status === 'REJECTED' ? 'text-destructive' : 'text-warning-600'
+                    req.status === 'REJECTED' ? 'text-destructive' : 'text-warning-600'
                     }`}>
                     {req.status}
                   </Text>
@@ -147,22 +150,17 @@ export function OperatorDetail({
           title="Recent Activity"
           badge={recentOps.length}
           defaultOpen>
-          {recentOps.map((op, i) => (
-            <View key={`${op.id}-${i}`} className="flex-row items-start gap-3 py-3 border-b border-neutral-100">
-              <View className={`mt-1.5 h-2 w-2 rounded-full ${op.type === 'CHECK_IN' ? 'bg-primary' : 'bg-success'}`} />
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-neutral-900">
-                  {op.type === 'CHECK_IN' ? 'Checked in' : 'Checked out'}
-                </Text>
-                <Text className="text-xs text-neutral-400">
-                  {new Date(op.checkInAt).toLocaleString([], {
-                    month: 'short', day: 'numeric',
-                    hour: '2-digit', minute: '2-digit',
-                  })}
-                </Text>
-              </View>
-            </View>
-          ))}
+          <Timeline
+            items={recentOps.map((op) => ({
+              id: op.id,
+              label: op.type === 'CHECK_IN' ? 'Checked in' : 'Checked out',
+              date: new Date(op.checkInAt).toLocaleString([], {
+                month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit',
+              }),
+              dotColor: op.type === 'CHECK_IN' ? 'bg-primary' : 'bg-success',
+            }))}
+          />
         </Collapsible>
       )}
     </View>

@@ -3,12 +3,15 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Alert, Button, Collapsible } from '../../../components';
+import { Alert, Button, Collapsible, Timeline } from '../../../components';
 import ScreeenHeader from '../../../components/shared/ScreeenHeader';
 import { useVehicleById, useVehicleDetail } from '../../../hooks/useVehicleDetail';
 import { cn } from '../../../lib/utils';
 import { useVehicleDrivedData } from '@/hooks/useVehicleDrivedData';
 import { QUERY_KEYS } from '@/config/query-keys.config';
+import { useCheckIn } from '@/hooks/useCheckIn';
+import { useEffect } from 'react';
+import { toast } from '@/lib/toast';
 
 export default function VehicleScreen() {
   const router = useRouter();
@@ -18,9 +21,27 @@ export default function VehicleScreen() {
   const { operations, isLoading: opsLoading, isError, refetch } = useVehicleDetail(vehicleId);
   const isLoading = vehicleLoading || opsLoading;
 
+  const checkInMutation = useCheckIn()
+
+  const checkIn = () => {
+    checkInMutation.mutate(vehicleId)
+  }
+
+  useEffect(() => {
+    if (checkInMutation.isSuccess) {
+      toast.success("Vehicle checked-in successfully.")
+
+    } else if (checkInMutation.isError) {
+      const errMsg = checkInMutation.error.message || "Error occured while checking in a vehicle."
+      toast.error(errMsg)
+    }
+  }, [checkInMutation.isSuccess, checkInMutation.isError, checkInMutation.error])
+
   const {
+    canAct,
     isCheckedIn,
     isCheckedOut,
+    isEmptyOperation,
     station,
     operator,
     duration,
@@ -117,47 +138,50 @@ export default function VehicleScreen() {
             </View>
           ) : (
             <Collapsible icon="receipt-outline" title="Full Activity Timeline" badge={operations.length || undefined}>
-              {operations.length === 0 ? (
-                <Text className="text-xs text-neutral-400">No operations recorded</Text>
-              ) : operations.map((op, i) => {
-                const opStation = op.terminal?.name ?? op.checkInTerminalOperator?.association?.terminal?.name ?? '—';
-                const opOperator = op.checkInTerminalOperator?.user?.name ?? '—';
-                const opTime = new Date(op.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const opDate = new Date(op.checkInAt).toLocaleDateString([], { month: 'short', day: 'numeric' });
-                return (
-                  <View key={op.id} className="flex-row items-start gap-3">
-                    <View className="items-center">
-                      <View className={`h-2.5 w-2.5 rounded-full mt-1.5 ${i === 0 ? 'bg-primary' : 'bg-neutral-300'}`} />
-                      {i < operations.length - 1 && (
-                        <View className="w-px flex-1 bg-neutral-200 mt-1" style={{ minHeight: 20 }} />
-                      )}
-                    </View>
-                    <View className="flex-1 pb-2">
-                      <View className="flex-row items-center justify-between">
-                        <Text className="text-sm font-semibold text-neutral-900">
-                          {op.type === 'CHECK_IN' ? 'Checked in' : 'Checked out'}
-                        </Text>
-                        <Text className="text-xs text-neutral-400">{opDate} · {opTime}</Text>
-                      </View>
-                      <Text className="text-xs text-neutral-400 mt-0.5">{opStation} · {opOperator}</Text>
-                    </View>
-                  </View>
-                );
-              })}
+              <Timeline
+                items={operations.map((op, i) => {
+                  const opStation = op.terminal?.name ?? op.checkInTerminalOperator?.association?.terminal?.name ?? '—';
+                  const opOperator = op.checkInTerminalOperator?.user?.name ?? '—';
+                  const opTime = new Date(op.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  const opDate = new Date(op.checkInAt).toLocaleDateString([], { month: 'short', day: 'numeric' });
+                  return {
+                    id: op.id,
+                    label: op.type === 'CHECK_IN' ? 'Checked in' : 'Checked out',
+                    sublabel: `${opStation} · ${opOperator}`,
+                    date: `${opDate} · ${opTime}`,
+                    dotColor: i === 0 ? 'bg-primary' : 'bg-neutral-300',
+                  };
+                })}
+                emptyText="No operations recorded"
+              />
             </Collapsible>
           )}
         </View>
 
-        {canResolveAndCheckIn && (
-          <View className="mt-4 pt-3 border-t border-neutral-100">
+
+        <View className="mt-4 pt-3 border-t border-neutral-100">
+          {canAct && (isCheckedOut || isEmptyOperation) && (
+            <Button
+              label="Check-in"
+              variant="default"
+              size="lg"
+              disabled={checkInMutation.isPending}
+              loading={checkInMutation.isPending}
+              className="w-full"
+              leftIcon={<Ionicons name="checkmark-circle-outline" size={20} color="white" />}
+              onPress={checkIn}
+            />
+          )}
+          
+          {canResolveAndCheckIn && (
             <Button
               label="Resolve & Check-in"
               className="w-full"
               leftIcon={<Ionicons name="flash" size={16} color="white" />}
               onPress={() => router.push({ pathname: '/(tabs)/search/resolve', params: { vehicleId } })}
             />
-          </View>
-        )}
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

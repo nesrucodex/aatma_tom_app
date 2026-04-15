@@ -5,6 +5,7 @@ import { Alert } from '../../ui/Alert';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { Collapsible } from '../../ui/Collapsible';
+import { Timeline } from '../../ui/Timeline';
 import type { Vehicle, VehicleOperation } from '../../../types/vehicle.types';
 import { useVehicleDrivedData } from '@/hooks/useVehicleDrivedData';
 import { useCheckIn } from '@/hooks/useCheckIn';
@@ -126,23 +127,18 @@ export function VehicleCard({
                 </View>
             ) : (
                 <Collapsible icon="receipt-outline" title="Activity Timeline" badge={timeline.length} defaultOpen>
-                    {timeline.length === 0 ? (
-                        <Text className="text-xs text-neutral-400">No activity recorded</Text>
-                    ) : timeline.map((item, i) => (
-                        <View key={i} className="flex-row items-start gap-3 py-1">
-                            <View className="mt-1.5 h-2 w-2 rounded-full bg-neutral-300" />
-                            <View>
-                                <Text className="text-sm font-semibold text-neutral-800">{item.label}</Text>
-                                <Text className="text-xs text-neutral-400">{item.time} · {item.station}</Text>
-                            </View>
-                        </View>
-                    ))}
+                    <Timeline
+                        items={timeline.map((item) => ({
+                            label: item.label,
+                            sublabel: `${item.time} · ${item.station}`,
+                        }))}
+                    />
                 </Collapsible>
             )}
 
             {/* Actions */}
             <View className="gap-2.5 mt-1">
-                {canAct && isCheckedOut && (
+                {canAct && (isCheckedOut || isEmptyOperation) && (
                     <Button
                         label="Check-in"
                         variant="default"
