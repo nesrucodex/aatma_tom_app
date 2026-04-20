@@ -1,40 +1,57 @@
-import { z } from 'zod';
+import type { ApiResponse } from "./api.types";
 
-export const userDetailSchema = z.object({
-  id: z.string(),
-  name: z.string().nullable(),
-  phone: z.string().nullable(),
-  email: z.string().nullable(),
-  role: z.string(),
-  isActive: z.boolean(),
-  isDeleted: z.boolean(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  terminalOperator: z.object({
-    userId: z.string(),
-    status: z.string(),
-    bankName: z.string(),
-    bankAccountNumber: z.string(),
-    associationId: z.string(),
-    association: z.object({
-      id: z.string(),
-      name: z.string(),
-      status: z.string(),
-      terminalId: z.string().nullable(),
-      terminal: z.object({
-        id: z.string(),
-        name: z.string(),
-        status: z.string(),
-        description: z.string().nullable(),
-      }).nullable(),
-    }).nullable(),
-  }).nullable(),
-}).loose();
+export enum UserRole {
+  TERMINAL_OPERATOR = "TERMINAL_OPERATOR",
+  TERMINAL_MANAGER = "TERMINAL_MANAGER",
+  TERMINAL_VICE_MANAGER = "TERMINAL_VICE_MANAGER",
+  TRAFFIC_POLICE = "TRAFFIC_POLICE",
+  TRANSPORT_AUTHORITY = "TRANSPORT_AUTHORITY",
+  SUPER_ADMIN = "SUPER_ADMIN",
+}
 
-export const userDetailResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-  data: z.object({ user: userDetailSchema }),
-});
+export enum UserStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  SUSPENDED = "SUSPENDED",
+}
 
-export type UserDetail = z.infer<typeof userDetailSchema>;
+export type Terminal = {
+  id: string;
+  name: string;
+  status: string;
+  description: string | null;
+};
+
+export type Association = {
+  id: string;
+  name: string;
+  status: string;
+  terminalId: string | null;
+  terminal: Terminal | null;
+};
+
+export type TerminalOperator = {
+  userId: string;
+  bankName: string;
+  bankAccountNumber: string;
+  associationId: string;
+  association?: Association | null;
+};
+
+export type User = {
+  id: string;
+  name: string | null;
+  phone: string | null;
+  email: string | null;
+  role: UserRole;
+  status: UserStatus;
+  isActive?: boolean;
+  isDeleted: boolean;
+  deletedAt?: string | null;
+  lastLogin?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  terminalOperator?: TerminalOperator | null;
+};
+
+export type UserDetailResponse = ApiResponse<{ user: User }>;

@@ -11,7 +11,8 @@
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
     "web": "expo start --web",
     "start:usb": "adb reverse tcp:8081 tcp:8081 && npx expo start --lan",
-    "android:usb": "adb reverse tcp:8081 tcp:8081 && EXPO_NO_DOCTOR=1 pnpm expo start --localhost --android"
+    "android:usb": "adb reverse tcp:8081 tcp:8081 && EXPO_NO_DOCTOR=1 pnpm expo start --localhost --android",
+    "check:type": "tsc --noEmit"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",

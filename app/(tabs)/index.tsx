@@ -68,7 +68,7 @@ export default function HomeScreen() {
     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TERMINAL_OPERATIONS] });
   };
 
-  const analytics = analyticsData?.data.analytics;
+  const analytics = analyticsData;
   const operations: TerminalOperation[] = operationsData?.data.operations ?? [];
 
   const filtered = filter === 'all'
@@ -85,6 +85,8 @@ export default function HomeScreen() {
       { icon: 'arrow-forward-outline' as const, iconColor: '#a78bfa', value: String(analytics.operationsByType.checkOut), label: 'Checked Out' },
     ]
     : [];
+
+  console.log({ user })
 
   return (
     <>
@@ -170,7 +172,7 @@ export default function HomeScreen() {
               filtered.map((op) => (
                 <ActivityRow
                   key={op.id}
-                  plate={op.vehicle.licensePlate}
+                  plate={op.vehicle?.licensePlate ?? '—'}
                   operator={op.checkInTerminalOperator?.user?.name ?? op.checkInTerminalOperator?.userId ?? '—'}
                   time={new Date(op.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   status={op.type === 'CHECK_IN' ? 'checked-in' : 'checked-out'}

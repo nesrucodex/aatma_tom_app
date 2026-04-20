@@ -1,17 +1,12 @@
-import { z } from 'zod';
+import type { ApiResponse } from "./api.types";
 
-export const financialOverviewSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-  data: z.object({
-    analytics: z.object({
-      activeVehicleCount: z.number(),
-      vehicleInWaitingQueue: z.number(),
-      checkedOutVehicleCount: z.number(),
-      totalRevenueGenerated: z.number(),
-    }),
-  }),
-});
+export type FinancialAnalytics = {
+  activeVehicleCount: number;
+  vehicleInWaitingQueue: number;
+  checkedOutVehicleCount: number;
+  totalRevenueGenerated: number;
+};
 
-export type FinancialOverview = z.infer<typeof financialOverviewSchema>;
-export type FinancialAnalytics = FinancialOverview['data']['analytics'];
+export type FinancialOverviewResponse = ApiResponse<{
+  analytics: FinancialAnalytics;
+}>;

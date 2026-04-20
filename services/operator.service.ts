@@ -1,15 +1,10 @@
 import { apiClient } from '../lib/axios';
-import { operatorMemberDetailSchema, type OperatorMemberDetail } from '../types/operator.types';
+import type { OperatorMemberDetail, OperatorMemberDetailResponse } from '../types/operator.types';
 
 export const operatorService = {
   getMemberDetail: async (userId: string): Promise<OperatorMemberDetail> => {
-    const searchParams = new URLSearchParams()
-    //  opsPage, opsLimit
-    searchParams.set("opsPage", "1")
-    searchParams.set("opsLimit", "1000")
-    const res = await apiClient.get(`/associations/members/${userId}`, {
-      params: searchParams
-    });
-    return operatorMemberDetailSchema.parse(res.data).data;
+    const params = new URLSearchParams({ opsPage: "1", opsLimit: "1000" });
+    const res = await apiClient.get<OperatorMemberDetailResponse>(`/associations/members/${userId}`, { params });
+    return res.data.data;
   },
 };

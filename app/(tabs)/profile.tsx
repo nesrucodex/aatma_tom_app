@@ -28,8 +28,6 @@ export default function ProfileScreen() {
     : '—';
 
   const totalEarning = opDetail?.totalEarning ?? 0;
-  const pendingPayment = opDetail?.pendingPayment ?? 0;
-  const receivedSalary = opDetail?.receivedSalary ?? 0;
 
   const isLoading = userLoading;
 
@@ -71,7 +69,7 @@ export default function ProfileScreen() {
 
         {/* Balance */}
         <View className="items-center gap-2 py-4">
-          <Text className="text-sm text-zinc-400">Account balance</Text>
+          <Text className="text-sm text-zinc-400 uppercase">Salary</Text>
           <View className="relative">
             <Text className="text-4xl font-black text-white tracking-tight">
               {opLoading || !balanceVisible ? '••••••  ETB' : `${totalEarning.toLocaleString()} ETB`}
@@ -106,11 +104,8 @@ export default function ProfileScreen() {
           <ProfileRow label="Phone" value={phone} />
           <ProfileRow label="Role" value={role} />
           <ProfileRow label="Joined" value={joinedDate} />
-          <ProfileRow
-            label="Status"
-            value={user?.isActive ? 'Active' : 'Inactive'}
-            valueClassName={user?.isActive ? 'text-success-600' : 'text-destructive'}
-          />
+          <ProfileRow label="Status" value={user?.status || "-"} />
+
         </View>
 
         {/* Association + terminal */}
@@ -124,9 +119,7 @@ export default function ProfileScreen() {
             {terminal?.description && (
               <ProfileRow label="Description" value={terminal.description} multiline />
             )}
-            {user?.terminalOperator && (
-              <ProfileRow label="Operator Status" value={user.terminalOperator.status} />
-            )}
+
           </View>
         )}
 

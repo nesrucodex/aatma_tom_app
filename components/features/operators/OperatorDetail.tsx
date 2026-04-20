@@ -90,7 +90,7 @@ export function OperatorDetail({
             <Text className="text-sm text-neutral-500">Status</Text>
             <View className={`rounded-full px-2.5 py-1 ${detail.terminalOperator.status === 'ACTIVE' ? 'bg-success-100' : 'bg-neutral-200'}`}>
               <Text className={`text-xs font-semibold ${detail.terminalOperator.status === 'ACTIVE' ? 'text-success-700' : 'text-neutral-500'}`}>
-                {detail.terminalOperator.status}
+                {detail.terminalOperator.user?.status}
               </Text>
             </View>
           </View>

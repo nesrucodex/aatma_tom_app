@@ -1,82 +1,84 @@
-import { z } from 'zod';
+import type { ApiResponse } from "./api.types";
+import type { TerminalOperationType } from "./terminal-operation.types";
+import { User } from "./user.types";
 
-const operationItemSchema = z.object({
-  id: z.string(),
-  type: z.enum(['CHECK_IN', 'CHECK_OUT']),
-  checkInAt: z.string(),
-  checkOutAt: z.string().nullable(),
-  waitingTimeMinutes: z.number().nullable(),
-  terminalId: z.string(),
-  vehicleId: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-}).passthrough();
+export type OperationItem = {
+  id: string;
+  type: TerminalOperationType;
+  checkInAt: string;
+  checkOutAt: string | null;
+  waitingTimeMinutes: number | null;
+  terminalId: string;
+  vehicleId: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
-const emergencyRequestSchema = z.object({
-  id: z.string(),
-  reason: z.string().nullable(),
-  status: z.string(),
-  resolvedAt: z.string().nullable(),
-  resolutionNotes: z.string().nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  vehicle: z.object({
-    id: z.string(),
-    licensePlate: z.string(),
-    type: z.string(),
-  }).nullable(),
-  destination: z.object({
-    id: z.string(),
-    name: z.string(),
-  }).nullable(),
-}).passthrough();
+export type EmergencyVehicle = {
+  id: string;
+  licensePlate: string;
+  type: string;
+};
 
-const salaryPaymentSchema = z.object({
-  id: z.string(),
-  amount: z.number(),
-  periodStart: z.string(),
-  periodEnd: z.string(),
-  createdAt: z.string(),
-}).passthrough();
+export type EmergencyDestination = {
+  id: string;
+  name: string;
+};
 
-export const operatorMemberDetailSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-  data: z.object({
-    terminalOperator: z.object({
-      userId: z.string(),
-      status: z.string(),
-      bankName: z.string(),
-      bankAccountNumber: z.string(),
-      associationId: z.string(),
-      user: z.object({
-        id: z.string(),
-        name: z.string().nullable(),
-        phone: z.string().nullable(),
-        role: z.string(),
-        isActive: z.boolean(),
-        createdAt: z.string(),
-      }).passthrough(),
-      association: z.object({
-        id: z.string(),
-        name: z.string(),
-        status: z.string(),
-      }).passthrough(),
-      emergencyRequests: z.array(emergencyRequestSchema).optional(),
-    }).passthrough(),
-    terminalOperations: z.array(operationItemSchema),
-    receivedSalary: z.number(),
-    pendingPayment: z.number(),
-    totalEarning: z.number(),
-    operatorSalaryTransactions: z.array(salaryPaymentSchema),
-    opsPagination: z.object({
-      page: z.number(),
-      limit: z.number(),
-      checkInTotal: z.number(),
-      checkOutTotal: z.number(),
-      total: z.number(),
-    }),
-  }),
-});
+export type EmergencyRequest = {
+  id: string;
+  reason: string | null;
+  status: string;
+  resolvedAt: string | null;
+  resolutionNotes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  vehicle: EmergencyVehicle | null;
+  destination: EmergencyDestination | null;
+};
 
-export type OperatorMemberDetail = z.infer<typeof operatorMemberDetailSchema>['data'];
+export type SalaryPayment = {
+  id: string;
+  amount: number;
+  periodStart: string;
+  periodEnd: string;
+  createdAt: string;
+};
+
+
+export type OperatorAssociation = {
+  id: string;
+  name: string;
+  status: string;
+};
+
+export type OperatorDetail = {
+  userId: string;
+  status: string;
+  bankName: string;
+  bankAccountNumber: string;
+  associationId: string;
+  user: User;
+  association: OperatorAssociation;
+  emergencyRequests?: EmergencyRequest[];
+};
+
+export type OpsPagination = {
+  page: number;
+  limit: number;
+  checkInTotal: number;
+  checkOutTotal: number;
+  total: number;
+};
+
+export type OperatorMemberDetail = {
+  terminalOperator: OperatorDetail;
+  terminalOperations: OperationItem[];
+  receivedSalary: number;
+  pendingPayment: number;
+  totalEarning: number;
+  operatorSalaryTransactions: SalaryPayment[];
+  opsPagination: OpsPagination;
+};
+
+export type OperatorMemberDetailResponse = ApiResponse<OperatorMemberDetail>;

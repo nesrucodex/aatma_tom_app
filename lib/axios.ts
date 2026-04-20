@@ -4,7 +4,7 @@ import { env } from '../config/env.config';
 import { tokenStorage } from './token-storage';
 import { debug } from './debug';
 
-const SHOW_LOGS = true
+const SHOW_LOGS = false
 
 export const apiClient = axios.create({
   baseURL: env.EXPO_PUBLIC_API_URL,
@@ -28,11 +28,11 @@ apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) =>
         ...(config.params ? ['\n  params:', config.params] : []),
         ...(config.data ? ['\n  body:', config.data] : []),
       })
-    // console.log(
-    //   `\n📤 [API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`,
-    //   ...(config.params ? ['\n  params:', config.params] : []),
-    //   ...(config.data ? ['\n  body:', config.data] : []),
-    // );
+    console.log(
+      `\n📤 [API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`,
+      ...(config.params ? ['\n  params:', config.params] : []),
+      ...(config.data ? ['\n  body:', config.data] : []),
+    );
   }
 
   return config;
@@ -45,7 +45,7 @@ apiClient.interceptors.response.use(
 
       debug.log(`\n📥 [API] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`,
         {
-          // 'data:': response.data,
+          'data:': response.data,
         })
     }
     return response;

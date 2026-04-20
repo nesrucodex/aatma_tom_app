@@ -1,68 +1,52 @@
-import { z } from 'zod';
+import type { ApiResponse, Pagination } from "./api.types";
+import type { User } from "./user.types";
+import type { Vehicle } from "./vehicle.types";
 
-export const terminalSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  status: z.string(),
-}).passthrough();
+export enum TerminalOperationType {
+  CHECK_IN = "CHECK_IN",
+  CHECK_OUT = "CHECK_OUT",
+}
 
-export const vehicleSchema = z.object({
-  id: z.string(),
-  licensePlate: z.string(),
-  model: z.string().nullable(),
-  manufacturer: z.string().nullable(),
-  status: z.string(),
-  type: z.string(),
-}).passthrough();
+export type TerminalRef = {
+  id: string;
+  name: string;
+  status: string;
+};
 
-export const terminalOperationSchema = z.object({
-  id: z.string(),
-  type: z.enum(['CHECK_IN', 'CHECK_OUT']),
-  waitingTimeMinutes: z.number().nullable(),
-  checkInAt: z.string(),
-  checkOutAt: z.string().nullable(),
-  terminalId: z.string(),
-  vehicleId: z.string(),
-  checkInTerminalOperatorId: z.string(),
-  checkOutTerminalOperatorId: z.string().nullable(),
-  transactionId: z.string().nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  terminal: terminalSchema,
-  vehicle: vehicleSchema,
-  checkInTerminalOperator: z.object({
-    userId: z.string(),
-    status: z.string(),
-    user: z.object({
-      id: z.string(),
-      name: z.string().nullable(),
-      phone: z.string().nullable(),
-    }).passthrough().optional(),
-  }).passthrough(),
-  checkOutTerminalOperator: z.object({
-    userId: z.string(),
-    status: z.string(),
-    user: z.object({
-      id: z.string(),
-      name: z.string().nullable(),
-      phone: z.string().nullable(),
-    }).passthrough().optional(),
-  }).passthrough().nullable(),
-  transaction: z.unknown().nullable(),
-});
+export type TerminalOperatorRef = {
+  userId: string;
+  status: string;
+  user?: User;
+  association?: {
+    id: string;
+    name: string;
+    terminal?: { id: string; name: string } | null;
+  } | null;
+};
 
-export const terminalOperationsResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-  data: z.object({
-    operations: z.array(terminalOperationSchema),
-    pagination: z.object({
-      page: z.number(),
-      limit: z.number(),
-      total: z.number(),
-    }),
-  }),
-});
+export type TerminalOperation = {
+  id: string;
+  type: TerminalOperationType;
+  waitingTimeMinutes: number | null;
+  checkInAt: string;
+  checkOutAt: string | null;
+  terminalId: string;
+  vehicleId: string;
+  checkInTerminalOperatorId: string;
+  checkOutTerminalOperatorId: string | null;
+  transactionId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  terminal: TerminalRef;
+  vehicle?: Vehicle;
+  checkInTerminalOperator: TerminalOperatorRef;
+  checkOutTerminalOperator: TerminalOperatorRef | null;
+  transaction: unknown | null;
+};
 
-export type TerminalOperation = z.infer<typeof terminalOperationSchema>;
-export type TerminalOperationsResponse = z.infer<typeof terminalOperationsResponseSchema>;
+export type TerminalOperationsResponse = ApiResponse<{
+  operations: TerminalOperation[];
+  pagination: Pagination;
+}>;
+
+export type { Pagination };

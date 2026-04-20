@@ -1,35 +1,28 @@
-import { z } from 'zod';
+import type { ApiResponse } from "./api.types";
 
-const operatorPerformanceSchema = z.object({
-  terminalOperator: z.object({
-    id: z.string(),
-    name: z.string().nullable(),
-    phone: z.string().nullable(),
-    role: z.string(),
-  }).passthrough(),
-  operationsHandled: z.number(),
-  revenueGenerated: z.number(),
-  emergencyRequestCount: z.number().default(0),
-});
+export type OperatorPerformance = {
+  terminalOperator: {
+    id: string;
+    name: string | null;
+    phone: string | null;
+    role: string;
+  };
+  operationsHandled: number;
+  revenueGenerated: number;
+  emergencyRequestCount: number;
+};
 
-export const associationAnalyticsSchema = z.object({
-  totalOperations: z.number(),
-  activeOperators: z.number(),
-  totalRevenue: z.number(),
-  operationsByType: z.object({
-    checkIn: z.number(),
-    checkOut: z.number(),
-  }),
-  operatorsPerformance: z.array(operatorPerformanceSchema),
-});
+export type AssociationAnalytics = {
+  totalOperations: number;
+  activeOperators: number;
+  totalRevenue: number;
+  operationsByType: {
+    checkIn: number;
+    checkOut: number;
+  };
+  operatorsPerformance: OperatorPerformance[];
+};
 
-export const associationAnalyticsResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-  data: z.object({
-    analytics: associationAnalyticsSchema,
-  }),
-});
-
-export type AssociationAnalytics = z.infer<typeof associationAnalyticsSchema>;
-export type AssociationAnalyticsResponse = z.infer<typeof associationAnalyticsResponseSchema>;
+export type AssociationAnalyticsResponse = ApiResponse<{
+  analytics: AssociationAnalytics;
+}>;

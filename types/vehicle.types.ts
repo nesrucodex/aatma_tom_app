@@ -1,96 +1,52 @@
-import { z } from 'zod';
+import type { ApiResponse, Pagination } from "./api.types";
+import type { TerminalOperation } from "./terminal-operation.types";
 
-export const vehicleStatusSchema = z.enum([
-  'AVAILABLE', 'IN_TRANSIT', 'MAINTENANCE', 'OUT_OF_SERVICE',
-]);
+export enum VehicleStatus {
+  AVAILABLE = "AVAILABLE",
+  IN_TRANSIT = "IN_TRANSIT",
+  MAINTENANCE = "MAINTENANCE",
+  OUT_OF_SERVICE = "OUT_OF_SERVICE",
+}
 
-const userSchema = z.object({
-  id: z.string(),
-  name: z.string().nullable(),
-  phone: z.string().nullable(),
-}).loose();
+export type VehicleRoute = {
+  id: string;
+  name: string;
+  fromId?: string;
+  toId?: string;
+  from?: { id: string; name: string };
+  to?: { id: string; name: string };
+};
 
-const associationSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  terminal: z.object({ id: z.string(), name: z.string() }).loose().nullable().optional(),
-}).loose().optional();
+export type VehicleMetadata = {
+  driverName?: string;
+  driverPhone?: string;
+};
 
-const operatorInfoSchema = z.object({
-  userId: z.string(),
-  status: z.string(),
-  user: userSchema.optional(),
-  association: associationSchema,
-}).loose().optional();
+export type Vehicle = {
+  id: string;
+  licensePlate: string;
+  capacity: number | null;
+  type: string;
+  status: VehicleStatus;
+  routeId?: string | null;
+  route?: VehicleRoute | null;
+  terminalOperations?: TerminalOperation[];
+  createdAt: string;
+  updatedAt: string;
+  vehicleMetadata?: VehicleMetadata;
+};
 
-const terminalSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-}).loose().optional();
+export type VehicleResponse = ApiResponse<{ vehicle: Vehicle }>;
 
-export const vehicleOperationSchema = z.object({
-  id: z.string(),
-  type: z.enum(['CHECK_IN', 'CHECK_OUT']),
-  checkInAt: z.coerce.string(),
-  checkOutAt: z.coerce.string().nullable(),
-  waitingTimeMinutes: z.number().nullable(),
-  terminalId: z.string().optional(),
-  terminal: terminalSchema,
-  checkInTerminalOperator: operatorInfoSchema,
-  checkOutTerminalOperator: operatorInfoSchema.nullable().optional(),
-  transaction: z.unknown().nullable().optional(),
-}).loose();
+export type VehicleListResponse = ApiResponse<{
+  vehicles: Vehicle[];
+  pagination: Pagination;
+}>;
 
-export const vehicleSchema = z.object({
-  id: z.string(),
-  licensePlate: z.string(),
-  model: z.string().nullable(),
-  manufacturer: z.string().nullable(),
-  year: z.number().nullable(),
-  capacity: z.number().nullable(),
-  type: z.string(),
-  status: vehicleStatusSchema,
-  routeId: z.string().nullable().optional(),
-  route: z.object({
-    id: z.string(),
-    name: z.string(),
-    fromId: z.string().optional(),
-    toId: z.string().optional(),
-    from: z.object({ id: z.string(), name: z.string() }).loose().optional(),
-    to: z.object({ id: z.string(), name: z.string() }).loose().optional(),
-  }).nullable().optional(),
-  terminalOperations: z.array(vehicleOperationSchema).optional(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  vehicleMetadata: z.object({
-    driverName: z.string().optional(),
-    driverPhone: z.string().optional()
-  }).optional()
-});
+export type VehicleOperationsResponse = ApiResponse<{
+  terminalOperations: TerminalOperation[];
+  pagination: Pagination;
+}>;
 
-export const vehicleResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-  data: z.object({ vehicle: vehicleSchema }),
-});
-
-export const vehicleListResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-  data: z.object({
-    vehicles: z.array(vehicleSchema),
-    pagination: z.object({ page: z.number(), limit: z.number(), total: z.number() }),
-  }),
-});
-
-export const vehicleOperationsResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-  data: z.object({
-    terminalOperations: z.array(vehicleOperationSchema),
-    pagination: z.object({ page: z.number(), limit: z.number(), total: z.number() }),
-  }),
-});
-
-export type Vehicle = z.infer<typeof vehicleSchema>;
-export type VehicleOperation = z.infer<typeof vehicleOperationSchema>;
+// alias for backwards compat
+export type VehicleOperation = TerminalOperation;

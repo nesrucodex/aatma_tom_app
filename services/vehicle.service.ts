@@ -1,43 +1,27 @@
 import { apiClient } from '../lib/axios';
-import {
-  vehicleListResponseSchema,
-  vehicleResponseSchema,
-  vehicleOperationsResponseSchema,
-  type Vehicle,
-  type VehicleOperation,
-} from '../types/vehicle.types';
+import type { Vehicle, VehicleListResponse, VehicleResponse, VehicleOperationsResponse } from '../types/vehicle.types';
+import type { TerminalOperation } from '../types/terminal-operation.types';
 
 export const vehicleService = {
   search: async (query: string): Promise<Vehicle[]> => {
-    const res = await apiClient.get('/vehicles', { params: { search: query, limit: 10, page: 1 } });
-    return vehicleListResponseSchema.parse(res.data).data.vehicles;
+    const res = await apiClient.get<VehicleListResponse>('/vehicles', { params: { search: query, limit: 10, page: 1 } });
+    return res.data.data.vehicles;
   },
 
   getByLicensePlate: async (plate: string): Promise<Vehicle> => {
-    const res = await apiClient.get(`/vehicles/license-plate/${encodeURIComponent(plate)}`);
-    return vehicleResponseSchema.parse(res.data).data.vehicle;
+    const res = await apiClient.get<VehicleResponse>(`/vehicles/license-plate/${encodeURIComponent(plate)}`);
+    return res.data.data.vehicle;
   },
 
   getById: async (vehicleId: string): Promise<Vehicle> => {
-    const res = await apiClient.get(`/vehicles/${vehicleId}`);
-    const parsed = vehicleResponseSchema.safeParse(res.data);
-    if (!parsed.success) {
-      console.warn('[vehicleService.getById] parse error:', JSON.stringify(parsed.error.issues.slice(0, 3), null, 2));
-      return res.data?.data?.vehicle as Vehicle;
-    }
-    return parsed.data.data.vehicle;
+    const res = await apiClient.get<VehicleResponse>(`/vehicles/${vehicleId}`);
+    return res.data.data.vehicle;
   },
 
-  getOperations: async (vehicleId: string): Promise<VehicleOperation[]> => {
-    const res = await apiClient.get(`/vehicles/${vehicleId}/terminal-operations`, {
+  getOperations: async (vehicleId: string): Promise<TerminalOperation[]> => {
+    const res = await apiClient.get<VehicleOperationsResponse>(`/vehicles/${vehicleId}/terminal-operations`, {
       params: { page: 1, limit: 20 },
     });
-    const parsed = vehicleOperationsResponseSchema.safeParse(res.data);
-    if (!parsed.success) {
-      console.warn('[vehicleService.getOperations] parse error:', JSON.stringify(parsed.error.issues.slice(0, 3), null, 2));
-      // Return raw data as fallback so the UI still works
-      return res.data?.data?.terminalOperations ?? [];
-    }
-    return parsed.data.data.terminalOperations;
+    return res.data.data.terminalOperations;
   },
 };

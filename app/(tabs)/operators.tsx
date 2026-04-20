@@ -58,7 +58,7 @@ export default function OperatorsScreen() {
   const [selectedOp, setSelectedOp] = useState<OperatorPerf | null>(null);
   const { data, isLoading, isError, refetch } = useAssociationAnalytics();
 
-  const operators = data?.data.analytics.operatorsPerformance ?? [];
+  const operators = data?.operatorsPerformance || []
 
   if (selectedOp) {
     return <OperatorDetailScreen op={selectedOp} onBack={() => setSelectedOp(null)} />;
